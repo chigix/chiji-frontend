@@ -1,0 +1,22 @@
+{
+    "name": "chigix/chiji",
+    "type": "library",
+    "description": "Front-end Intergration Solution for PHP",
+    "keywords": ["Front-end", "Asset", "Chigi"],
+    "homepage": "http://www.chigix.com",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Richard Lea",
+            "email": "chigix@zoho.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "codegyre/robo": "0.4.5",
+        "symfony/console": "2.*"
+    },
+    "autoload": {
+        "psr-4": { "Chigi\\Chiji": "src/" }
+    }
+}
