@@ -17,6 +17,6 @@
         "symfony/console": "2.*"
     },
     "autoload": {
-        "psr-4": { "Chigi\\Chiji": "src/" }
+        "psr-4": { "Chigi\\Chiji\\": "src/" }
     }
 }
