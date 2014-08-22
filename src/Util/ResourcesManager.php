@@ -65,7 +65,7 @@ class ResourcesManager {
      * List all the resources registered
      * @return array<AbstractResourceFile>
      */
-    public function getAll() {
+    public static function getAll() {
         return array_values(self::$resources);
     }
 

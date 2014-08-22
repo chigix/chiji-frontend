@@ -47,7 +47,7 @@ class RequireAnnotation extends AbstractAnnotation {
         $real_path = null;
         if ('/' === substr($param_str, 0, 1)) {
             $real_path = realpath($param_str);
-        } elseif (preg_match('#^[a-zA-Z]:[\/\\]#', $param_str)) {
+        } elseif (preg_match('#^[a-zA-Z]:[\/\\\]#', $param_str)) {
             $real_path = realpath($param_str);
         } else {
             // 均为相对路径
