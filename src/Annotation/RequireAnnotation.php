@@ -20,6 +20,8 @@ namespace Chigi\Chiji\Annotation;
 
 use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\File\AbstractResourceFile;
+use Chigi\Chiji\File\RequiresMapInterface;
+use Chigi\Chiji\Util\PathHelper;
 use Chigi\Chiji\Util\ResourcesManager;
 
 /**
@@ -42,21 +44,14 @@ class RequireAnnotation extends AbstractAnnotation {
      * @throws ResourceNotFoundException
      */
     public function parse($param_str) {
-        $param_str = trim($param_str);
-        $resource = $this->getScope();
-        $real_path = null;
-        if ('/' === substr($param_str, 0, 1)) {
-            $real_path = realpath($param_str);
-        } elseif (preg_match('#^[a-zA-Z]:[\/\\\]#', $param_str)) {
-            $real_path = realpath($param_str);
-        } else {
-            // 均为相对路径
-            $real_path = realpath(dirname($resource->getRealPath()) . '/' . $param_str);
-        }
-        if ($real_path === FALSE) {
-            throw new ResourceNotFoundException("The file $param_str NOT FOUND FROM " . $real_path->getRealPath());
-        } else {
+        $real_path = PathHelper::searchRealPath($this->getScope()->getRealPath(), trim($param_str));
+        if (file_exists($real_path)) {
             $this->requireResource = ResourcesManager::getResourceByPath($real_path);
+            if ($this->getScope() instanceof RequiresMapInterface) {
+                $this->getScope()->getRequires()->addResource($this->getResource());
+            }
+        } else {
+            throw new ResourceNotFoundException("The file $param_str NOT FOUND FROM " . $real_path->getRealPath());
         }
     }
 
