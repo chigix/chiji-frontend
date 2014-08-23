@@ -14,7 +14,8 @@
     "require": {
         "php": ">=5.4",
         "codegyre/robo": "0.4.5",
-        "symfony/console": "2.*"
+        "symfony/console": "2.*",
+        "leafo/lessphp": "0.4.0"
     },
     "autoload": {
         "psr-4": { "Chigi\\Chiji\\": "src/" }
