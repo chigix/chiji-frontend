@@ -29,7 +29,8 @@ use Chigi\Chiji\File\AbstractResourceFile;
 class ResourcesCollection extends ArrayIterator {
 
     /**
-     * Add the resource object to current collection
+     * Add the resource object to current collection<br/>
+     * It will auto skip resources added, if you want to force add, please use append method.
      * @param AbstractResourceFile $resource
      */
     public function addResource(AbstractResourceFile $resource) {

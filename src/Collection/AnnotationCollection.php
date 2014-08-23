@@ -20,7 +20,6 @@ namespace Chigi\Chiji\Collection;
 
 use ArrayIterator;
 use Chigi\Chiji\Annotation\Annotation;
-use Chigi\Chiji\File\Annotation as AnnotationInterface;
 
 /**
  * Description of AnnotationCollection

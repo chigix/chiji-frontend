@@ -21,7 +21,7 @@ namespace Chigi\Chiji\Annotation;
 use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\Annotation as AnnotationInterface;
-use Chigi\Chiji\File\RequiresMapInterface;
+use Chigi\Chiji\Util\StaticsManager;
 
 /**
  * The common annotation support for all resource file.
@@ -63,24 +63,29 @@ class Annotation {
             if ('@' !== substr($annotation_line, 0, 1)) {
                 continue;
             }
-            var_dump($annotation_line);
-            preg_match('#^@(\S+)\s(.+)$#', $annotation_line, $matches);
-            $command_name = strtolower($matches[1]);
-            $params = $matches[2];
-            switch ($command_name) {
-                case 'require':
-                    $command_annotation = new RequireAnnotation($this);
-                    $command_annotation->parse($params);
-                    if ($scope_resource instanceof RequiresMapInterface) {
-                        $scope_resource->getRequires()->addResource($command_annotation->getResource());
-                    }
-                    break;
-                case 'use':
-                    var_dump("USE");
-                    // new UseAnnotation($this);
-                    break;
-                default:
-                    break;
+            var_dump($annotation_line . '[' . $this->scope->getRealPath() . ']');
+            if (preg_match('#^@(\S+)\s(.+)$#', $annotation_line, $matches)) {
+                $command_name = $matches[1];
+                $params = $matches[2];
+            } elseif (preg_match('#^@([0-9a-zA-Z\/\\\]+)\((.*)\)$#', $annotation_line, $matches)) {
+                $command_name = $matches[1];
+                $params = $matches[2];
+            } else {
+                continue;
+            }
+            // Get the instance
+            if ('require' === strtolower($command_name)) {
+                $command_annotation = new RequireAnnotation($this);
+            } elseif ('use' === strtolower($command_name)) {
+                $command_annotation = new UseAnnotation($this);
+            } elseif (class_exists($command_name)) {
+                $command_annotation = new $command_name($this);
+            } else {
+                continue;
+            }
+            if ($command_annotation instanceof AbstractAnnotation) {
+                $command_annotation->parse($params);
+                StaticsManager::registAnnotation($command_annotation);
             }
         }
     }

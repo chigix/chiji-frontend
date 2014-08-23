@@ -39,6 +39,7 @@ abstract class AbstractAnnotation {
     }
 
     /**
+     * Parse the param from the annotation, called from common annotation.
      * @param string $param_str The String as params following the command name
      */
     public abstract function parse($param_str);
