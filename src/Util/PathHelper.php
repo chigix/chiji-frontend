@@ -18,8 +18,6 @@
 
 namespace Chigi\Chiji\Util;
 
-use Chigi\Chiji\Exception\ResourceNotFoundException;
-
 /**
  * HelperFunctions for path process
  *
