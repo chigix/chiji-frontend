@@ -20,6 +20,7 @@ namespace Chigi\Chiji\Annotation;
 
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\RequiresMapInterface;
+use Chigi\Chiji\Project\Project;
 use Chigi\Chiji\Util\PathHelper;
 
 /**
@@ -45,15 +46,22 @@ class Release extends FunctionAnnotation {
     public function execute() {
         $resource = $this->getScope();
         $body_lines = array();
+        // @TODO Get the resource type map from project.
         if ('css' === strtolower($this->type)) {
             $type = "\Chigi\Chiji\File\CssResourceFile";
         }
         if ($resource instanceof RequiresMapInterface) {
             foreach ($resource->getRequires() as $resource_required) {
                 /* @var $resource_required AbstractResourceFile */
-                $resource_deploy_path = 'D:/Server/Hosts/F2/chigi_blog/web/chiji/' . $resource_required->getHash() . '.css';
+                var_dump(get_class($resource_required));
+                var_dump($resource_required instanceof $type);
+                // @TODO Check the resource type
+                $resource_deploy_path = sprintf(Project::getRegistered()->getReleaseRootPathFormat(), $resource_required->getHash() . '.css');
+                if (!is_dir(dirname($resource_deploy_path))) {
+                    mkdir(dirname($resource_deploy_path), 0777, TRUE);
+                }
                 file_put_contents($resource_deploy_path, $resource_required->getFileContents());
-                array_push($body_lines, '<link type="text/css" href="http://two/chigi_blog/web/chiji/' . $resource_required->getHash() . '.css" rel="stylesheet">');
+                array_push($body_lines, '<link type="text/css" href="' . sprintf(Project::getRegistered()->getReleaseRootUrlFormat(), $resource_required->getHash() . '.css') . '" rel="stylesheet">');
             }
         }
         file_put_contents(PathHelper::searchRealPath($this->getScope()->getRealPath(), $this->path), implode("\n", $body_lines));
