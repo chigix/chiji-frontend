@@ -29,6 +29,7 @@ use Chigi\Chiji\Annotation\FunctionAnnotation;
 class StaticsManager {
 
     private static $post_end_function_annotations = array();
+    private static $customer_references = array();
 
     public static function registAnnotation(AbstractAnnotation $annotation) {
         if ($annotation instanceof FunctionAnnotation) {
@@ -42,6 +43,28 @@ class StaticsManager {
 
     public static function getPostEndFunctionAnnotations() {
         return array_values(self::$post_end_function_annotations);
+    }
+
+    /**
+     * Set a static to the manager
+     * @param string $name
+     * @param mixed $value
+     */
+    public static function setReferenece($name, $value) {
+        self::$customer_references[$name] = $value;
+    }
+
+    /**
+     * Get the target static from the manager
+     * @param string $name
+     * @return mixed
+     */
+    public static function getReference($name) {
+        if (isset(self::$customer_references[$name])) {
+            return self::$customer_references[$name];
+        } else {
+            return null;
+        }
     }
 
 }
