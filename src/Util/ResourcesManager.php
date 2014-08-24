@@ -58,6 +58,7 @@ class ResourcesManager {
         if ($real_path === FALSE) {
             throw new ResourceNotFoundException("The $path NOT FOUND");
         }
+        // @TODO Need to do a match from file type map.
         return self::getResource(new PlainResourceFile($real_path));
     }
 
