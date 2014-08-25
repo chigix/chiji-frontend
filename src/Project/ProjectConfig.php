@@ -18,12 +18,16 @@
 
 namespace Chigi\Chiji\Project;
 
+use Chigi\Chiji\Collection\RoadMap;
+
 /**
  * The Abstract class for project config.
  *
  * @author 郷
  */
 abstract class ProjectConfig {
+
+    private $projectRootPath = null;
 
     public function __construct() {
         
@@ -34,23 +38,30 @@ abstract class ProjectConfig {
      * @return string
      */
     public function getProjectRootPath() {
-        return null;
+        return $this->projectRootPath;
     }
 
     /**
-     * Return the sprintf format string
-     * @return string The destination to release
+     * Set the project root path defination
+     * @param string $dir_path
      */
-    abstract public function getReleaseRootPath();
-
-    /**
-     * Return the sprintf format string
-     * @return string The URL accessed to the Release Root Path
-     */
-    abstract public function getReleaseRootUrl();
+    public function setProjectRootPath($dir_path) {
+        $this->projectRootPath = $dir_path;
+    }
 
     /**
      * @return string Specify the project name
      */
     abstract public function getProjectName();
+
+    /**
+     * Returns the roadmap for this project.
+     * @return RoadMap
+     */
+    public function getRoadMap() {
+        $road_map = new RoadMap();
+        $road_map->append(new SourceRoad("ROOT", $this->getProjectRootPath()));
+        return $road_map;
+    }
+
 }
