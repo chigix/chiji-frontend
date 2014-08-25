@@ -18,10 +18,12 @@
 
 namespace Chigi\Chiji\Project;
 
+use Chigi\Chiji\Collection\RoadMap;
 use Chigi\Chiji\Exception\ConfigFileNotFoundException;
 use Chigi\Chiji\Exception\ConflictProjectNameException;
 use Chigi\Chiji\Exception\InvalidConfigException;
 use Chigi\Chiji\Exception\ProjectNotFoundException;
+use Chigi\Chiji\Util\PathHelper;
 use SplFileObject;
 
 /**
@@ -35,8 +37,12 @@ class Project {
     private $configFile;
     private $projectName;
     private $constants;
-    private $releasePathFormat = "";
-    private $releaseUrlFormat = "";
+
+    /**
+     *
+     * @var RoadMap
+     */
+    private $roadMap;
 
     /**
      *
@@ -54,6 +60,7 @@ class Project {
      * 
      * @param SplFileObject $configFile
      * @throws ConfigFileNotFoundException
+     * @throws InvalidConfigException
      */
     public function __construct($configFile) {
         if (is_string($configFile)) {
@@ -65,10 +72,12 @@ class Project {
             throw new ConfigFileNotFoundException("The Config File Param given INVALID.");
         }
         $this->rootPath = dirname($this->configFile->getRealPath());
-        $tmp_current_project = self::$currentProject;
-        self::$currentProject = $this;
-        require_once $this->configFile->getRealPath();
-        self::$currentProject = $tmp_current_project;
+        $project_config = require($this->configFile->getRealPath());
+        if ($project_config instanceof ProjectConfig) {
+            $this->pushConfig($project_config);
+        } else {
+            throw new InvalidConfigException(sprintf("The return from config '%s' is not instance of ProjectConfig", $this->configFile->getRealPath()));
+        }
     }
 
     /**
@@ -128,44 +137,72 @@ class Project {
     /**
      * Make the target Config object Effective<br/>
      * Must be used in config file ONLY!!
-     * @param \Chigi\Chiji\Project\ProjectConfig $config
+     * @param ProjectConfig $config
      * @throws InvalidConfigException
      */
-    public static function pushConfig(ProjectConfig $config) {
-        if (!is_null($config->getProjectRootPath())) {
-            self::$currentProject->rootPath = $config->getProjectRootPath();
-            if (!is_dir(self::$currentProject->rootPath)) {
+    private function pushConfig(ProjectConfig $config) {
+        if (is_null($config->getProjectRootPath())) {
+            $config->setProjectRootPath($this->rootPath);
+        } else {
+            $this->rootPath = $config->getProjectRootPath();
+            if (!is_dir($this->rootPath)) {
                 throw new InvalidConfigException(sprintf("The rootpath \"%s\" IS INVALID", $this->rootPath));
             }
         }
-        self::$currentProject->constants['ROOT'] = self::$currentProject->rootPath;
-        self::$currentProject->projectName = $config->getProjectName();
-        self::$currentProject->releasePathFormat = $config->getReleaseRootPath();
-        if (strpos(self::$currentProject->releasePathFormat, '%s') === FALSE) {
-            throw new \Exception("The getReleaseRootPath result is not compatible for sprintf.");
-        }
-        self::$currentProject->releaseUrlFormat = $config->getReleaseRootUrl();
-        if (strpos(self::$currentProject->releaseUrlFormat, '%s') === FALSE) {
-            throw new \Exception("The getReleaseRootUrl result is not compatible for sprintf.");
-        }
+        $this->constants['ROOT'] = $this->rootPath;
+        $this->projectName = $config->getProjectName();
+        $this->roadMap = $config->getRoadMap();
     }
 
     /**
-     * The destination to release<br/>
-     * Please use with sprintf
-     * @return string The sprintf string format
+     * Returns the first match road for the target resource file.
+     * @param string $file_path
+     * @return SourceRoad|null
      */
-    public function getReleaseRootPathFormat() {
-        return $this->releasePathFormat;
+    public function getMatchRoad($file_path) {
+        $real_path = PathHelper::searchRealPath($this->getRootPath(), $file_path);
+        foreach ($this->roadMap as $road) {
+            /* @var $road SourceRoad */
+            if ($road->resourceCheck($real_path)) {
+                return $road;
+            }
+        }
+        return NULL;
     }
 
     /**
-     * The URL accessed to the Release Root Path<br/>
-     * Please use with sprintf
-     * @return string The sprintf string format
+     * Returns all the source directory paths from roadmap.
+     * @return array<string>
      */
-    public function getReleaseRootUrlFormat() {
-        return $this->releaseUrlFormat;
+    public function getSourceDirs() {
+        $dirs = array();
+        foreach ($this->roadMap as $road) {
+            /* @var $road SourceRoad */
+            array_push($dirs, $road->getSourceDir());
+        }
+        return $dirs;
+    }
+
+    /**
+     * Returns all the release directory paths from roadmap.
+     * @return array<string>
+     */
+    public function getReleaseDirs() {
+        $dirs = array();
+        foreach ($this->roadMap as $road) {
+            /* @var $road SourceRoad */
+            $release_dir = $road->getReleaseDir();
+            if (empty($release_dir)) {
+                continue;
+            }
+            if (!is_dir($release_dir)) {
+                if (!mkdir($release_dir, 0777, TRUE)) {
+                    continue;
+                }
+            }
+            array_push($dirs, $release_dir);
+        }
+        return $dirs;
     }
 
 }
