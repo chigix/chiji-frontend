@@ -18,6 +18,7 @@
 
 namespace Chigi\Chiji\Annotation;
 
+use Chigi\Chiji\Exception\InvalidConfigException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\RequiresMapInterface;
 use Chigi\Chiji\Project\Project;
@@ -38,10 +39,16 @@ class Release extends FunctionAnnotation {
     protected $type;
 
     /**
-     * The target release path
+     * The target release file path to write in.
      * @var string
      */
     protected $path;
+
+    /**
+     * The string format name for the URL accessed to write in.
+     * @var string
+     */
+    protected $format;
 
     public function execute() {
         $resource = $this->getScope();
@@ -56,12 +63,12 @@ class Release extends FunctionAnnotation {
                 var_dump(get_class($resource_required));
                 var_dump($resource_required instanceof $type);
                 // @TODO Check the resource type
-                $resource_deploy_path = sprintf(Project::getRegistered()->getReleaseRootPathFormat(), $resource_required->getHash() . '.css');
-                if (!is_dir(dirname($resource_deploy_path))) {
-                    mkdir(dirname($resource_deploy_path), 0777, TRUE);
+                if (is_null($road = Project::getRegistered()->getMatchRoad($resource_required->getRealPath()))) {
+                    throw new InvalidConfigException(sprintf("No roadmap for the resource '%s'.", $resource_required->getRealPath()));
+                } else {
+                    $road->releaseResource($resource_required);
                 }
-                file_put_contents($resource_deploy_path, $resource_required->getFileContents());
-                array_push($body_lines, '<link type="text/css" href="' . sprintf(Project::getRegistered()->getReleaseRootUrlFormat(), $resource_required->getHash() . '.css') . '" rel="stylesheet">');
+                array_push($body_lines, $road->getReleaseFormatUrl($resource_required, $this->format));
             }
         }
         file_put_contents(PathHelper::searchRealPath($this->getScope()->getRealPath(), $this->path), implode("\n", $body_lines));
