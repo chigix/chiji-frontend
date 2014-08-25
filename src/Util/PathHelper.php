@@ -46,17 +46,27 @@ class PathHelper {
                 $real_path = dirname($frmPath) . '/' . $targetPath;
             }
         }
-        $real_path = str_replace('\\', '/', $real_path);
-        while (strpos($real_path, '//') !== FALSE) {
-            $real_path = str_replace('//', '/', $real_path);
+        return self::pathStandardize($real_path);
+    }
+
+    /**
+     * The standardization for filepath.
+     * @param string $path The path needed to be standardized
+     * @return string The path after standardization
+     */
+    public static function pathStandardize($path) {
+        $path = str_replace('\\', '/', $path);
+        while (strpos($path, '//') !== FALSE) {
+            $path = str_replace('//', '/', $path);
         }
-        $real_path_exploded = explode('..', $real_path);
-        $real_path = $real_path_exploded[0];
-        for ($i = 1; $i < count($real_path_exploded); $i++) {
-            $real_path = dirname($real_path) . '/' . $real_path_exploded[$i];
+        str_replace('./', '', $path);
+        $path_exploded = explode('..', $path);
+        $path = $path_exploded[0];
+        for ($i = 1; $i < count($path_exploded); $i ++) {
+            $path = dirname($path) . '/' . $path_exploded[$i];
         }
-        $real_path = str_replace('//', '/', $real_path);
-        return $real_path;
+        $path = str_replace('//', '/', $path);
+        return $path;
     }
 
 }
