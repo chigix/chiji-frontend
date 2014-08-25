@@ -33,24 +33,24 @@ class ResourcesManager {
     private static $resources = array();
 
     /**
-     * Add a resource object to this manager
-     * @param AbstractResourceFile $resource
-     * @return AbstractResourceFile
+     * Return the resource file object if registered, <br/>
+     * OR return null.
+     * @param string $resource_id The resource id
+     * @return AbstractResourceFile|NULL
      */
-    public static function getResource(AbstractResourceFile $resource) {
-        if (!isset(self::$resources[$resource->getId()])) {
-            self::$resources[$resource->getId()] = $resource;
-            if ($resource instanceof Annotation) {
-                $resource->analyzeAnnotations();
-            }
+    public static function getResourceById($resource_id) {
+        if (isset(self::$resources[$resource_id])) {
+            return self::$resources[$resource_id];
+        } else {
+            return NULL;
         }
-        return self::$resources[$resource->getId()];
     }
 
     /**
-     * Get the target Resource File Object Via given path
+     * Get the target Resource File Object Via given path<br/>
+     * OR return null if not registered.
      * @param string $path
-     * @return AbstractResourceFile
+     * @return AbstractResourceFile|NULL
      * @throws ResourceNotFoundException
      */
     public static function getResourceByPath($path) {
@@ -58,8 +58,21 @@ class ResourcesManager {
         if ($real_path === FALSE) {
             throw new ResourceNotFoundException("The $path NOT FOUND");
         }
-        // @TODO Need to do a match from file type map.
-        return self::getResource(new PlainResourceFile($real_path));
+        $tmp_resource = new PlainResourceFile($path);
+        return self::getResourceById($tmp_resource->getId());
+    }
+
+    /**
+     * Regist a resource object to the manager
+     * @param AbstractResourceFile $resource
+     */
+    public static function registerResource(AbstractResourceFile $resource) {
+        if (!isset(self::$resources[$resource->getId()])) {
+            self::$resources[$resource->getId()] = $resource;
+            if ($resource instanceof Annotation) {
+                $resource->analyzeAnnotations();
+            }
+        }
     }
 
     /**
