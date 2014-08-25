@@ -19,7 +19,7 @@
 namespace Chigi\Chiji\File;
 
 use Chigi\Chiji\Exception\ResourceNotFoundException;
-use Chigi\Chiji\Project\Project;
+use Chigi\Chiji\Util\PathHelper;
 
 /**
  * The abstract class for resource file
@@ -51,17 +51,21 @@ class AbstractResourceFile {
      * @return string
      */
     public function getRealPath() {
-        return $this->file_realpath;
+        return PathHelper::pathStandardize($this->file_realpath);
     }
 
-    public function getRelativePath(Project $project) {
+    /**
+     * Returns the relative path
+     * @param string $base_dir The base_dir to be based upon for relative path calculation
+     * @return string the relative path
+     */
+    public function getRelativePath($base_dir) {
         $back_count = 0;
-        $root_path = $project->getRootPath();
-        while (strpos($this->getRealPath(), $root_path) !== 0 && !empty($root_path)) {
-            $root_path = dirname($root_path);
+        while (strpos($this->getRealPath(), $base_dir) !== 0 && !empty($base_dir)) {
+            $base_dir = dirname($base_dir);
             $back_count ++;
         }
-        $return_path = substr($this->getRealPath(), strlen($root_path) + 1);
+        $return_path = substr($this->getRealPath(), strlen($base_dir) + 1);
         for ($i = 0; $i < $back_count; $i++) {
             $return_path = '../' . $return_path;
         }
@@ -71,7 +75,7 @@ class AbstractResourceFile {
     public function getId() {
         return md5($this->file_realpath);
     }
-    
+
     /**
      * Return the file contents
      * @return string
@@ -79,7 +83,7 @@ class AbstractResourceFile {
     public function getFileContents() {
         return file_get_contents($this->file_realpath);
     }
-    
+
     /**
      * Get the md5 hash of the current file contents.
      * @return string
