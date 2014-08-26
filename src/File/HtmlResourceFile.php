@@ -40,9 +40,10 @@ class HtmlResourceFile extends AbstractResourceFile implements RequiresMapInterf
 
     /**
      * Parse all the annotations in Resources Manager<br/>
-     * Launched by ResourcesManager
+     * Launched by ResourcesManager<br/>
+     * Built-in with annotations sort upon occurs position.
      */
-    public function analyzeAnnotations() {
+    public final function analyzeAnnotations() {
         $annotation_ordered = array();
         foreach ($this->getAnnotations() as $annotation) {
             /* @var $annotation \Chigi\Chiji\Annotation\Annotation */

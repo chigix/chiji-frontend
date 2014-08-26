@@ -35,7 +35,7 @@ interface Annotation {
 
     /**
      * Parse all the annotations in Resources Manager<br/>
-     * Will be called when resource registering
+     * Will be called when resource registering from ResourcesManager
      */
     public function analyzeAnnotations();
 }
