@@ -51,7 +51,7 @@ class RequireAnnotation extends AbstractAnnotation {
                 $this->getScope()->getRequires()->addResource($require_resource);
             }
         } else {
-            throw new ResourceNotFoundException("The file $param_str NOT FOUND FROM " . $real_path->getRealPath());
+            throw new ResourceNotFoundException("The file $param_str NOT FOUND FROM " . $real_path);
         }
     }
 
