@@ -26,7 +26,7 @@ use Chigi\Chiji\Util\PathHelper;
 
 /**
  * Description of Release
- * `@Chigi\Chiji\Annotation\Release(type="css",path="./bankai.js")`
+ * `@Chigi\Chiji\Annotation\Release(type="css",path="./bankai.js",format="css")`
  *
  * @author 郷
  */
@@ -56,19 +56,20 @@ class Release extends FunctionAnnotation {
         // @TODO Get the resource type map from project.
         if ('css' === strtolower($this->type)) {
             $type = "\Chigi\Chiji\File\CssResourceFile";
+        } elseif ('js' === strtolower($this->type)) {
+            $type = '\Chigi\Chiji\File\JsResourceFile';
         }
         if ($resource instanceof RequiresMapInterface) {
             foreach ($resource->getRequires() as $resource_required) {
                 /* @var $resource_required AbstractResourceFile */
-                var_dump(get_class($resource_required));
-                var_dump($resource_required instanceof $type);
-                // @TODO Check the resource type
-                if (is_null($road = Project::getRegistered()->getMatchRoad($resource_required->getRealPath()))) {
-                    throw new InvalidConfigException(sprintf("No roadmap for the resource '%s'.", $resource_required->getRealPath()));
-                } else {
-                    $road->releaseResource($resource_required);
+                if ($resource_required instanceof $type) {
+                    if (is_null($road = Project::getRegistered()->getMatchRoad($resource_required->getRealPath()))) {
+                        throw new InvalidConfigException(sprintf("No roadmap for the resource '%s'.", $resource_required->getRealPath()));
+                    } else {
+                        $road->releaseResource($resource_required);
+                    }
+                    array_push($body_lines, $road->getReleaseFormatUrl($resource_required, $this->format));
                 }
-                array_push($body_lines, $road->getReleaseFormatUrl($resource_required, $this->format));
             }
         }
         file_put_contents(PathHelper::searchRealPath($this->getScope()->getRealPath(), $this->path), implode("\n", $body_lines));
