@@ -60,6 +60,7 @@ abstract class ProjectConfig {
      */
     public function getRoadMap() {
         $road_map = new RoadMap();
+        $road_map->append(new LessRoad("LESSCSS", $this->getProjectRootPath()));
         $road_map->append(new SourceRoad("ROOT", $this->getProjectRootPath()));
         return $road_map;
     }
