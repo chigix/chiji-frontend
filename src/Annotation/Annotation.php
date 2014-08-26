@@ -28,7 +28,7 @@ use Chigi\Chiji\Util\StaticsManager;
  *
  * @author 郷
  */
-class Annotation {
+final class Annotation {
 
     private $contents;
     private $scope;
