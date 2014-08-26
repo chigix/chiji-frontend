@@ -30,6 +30,8 @@ use Chigi\Chiji\Util\StaticsManager;
  */
 final class Annotation {
 
+    use \Robo\Output;
+
     private $contents;
     private $scope;
     private $occursPos;
@@ -63,7 +65,7 @@ final class Annotation {
             if ('@' !== substr($annotation_line, 0, 1)) {
                 continue;
             }
-            var_dump($annotation_line . '[' . $this->scope->getRealPath() . ']');
+            $this->say($annotation_line . '[' . $this->scope->getRealPath() . ']');
             if (preg_match('#^@(\S+)\s(.+)$#', $annotation_line, $matches)) {
                 $command_name = $matches[1];
                 $params = $matches[2];

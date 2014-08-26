@@ -32,6 +32,8 @@ use Chigi\Chiji\Util\PathHelper;
  */
 class Release extends FunctionAnnotation {
 
+    use \Robo\Output;
+
     /**
      * The resources type to be released match
      * @var string 
@@ -67,8 +69,10 @@ class Release extends FunctionAnnotation {
                         throw new InvalidConfigException(sprintf("No roadmap for the resource '%s'.", $resource_required->getRealPath()));
                     } else {
                         $road->releaseResource($resource_required);
+                        $this->say('[RELEASED] ' . $resource_required->getRealPath());
                     }
                     array_push($body_lines, $road->getReleaseFormatUrl($resource_required, $this->format));
+                    $this->say('[WRITEIN] ' . $this->format . ' ' . $resource_required->getRelativePath($road->getSourceDir()));
                 }
             }
         }
