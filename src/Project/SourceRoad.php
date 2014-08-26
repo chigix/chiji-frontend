@@ -20,18 +20,19 @@ namespace Chigi\Chiji\Project;
 
 use Chigi\Chiji\Collection\ResourcesCollection;
 use Chigi\Chiji\Exception\FileWriteErrorException;
-use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\Exception\UndefinedReleaseUrlFormatException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\CssResourceFile;
 use Chigi\Chiji\File\GifResourceFile;
 use Chigi\Chiji\File\JpegResourceFile;
 use Chigi\Chiji\File\JsResourceFile;
+use Chigi\Chiji\File\LessResourceFile;
 use Chigi\Chiji\File\PlainResourceFile;
 use Chigi\Chiji\File\PngResourceFile;
 use Chigi\Chiji\Util\PathHelper;
 use Chigi\Chiji\Util\ResourcesManager;
-use InvalidArgumentException;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
 /**
  * Config for a resource road
@@ -140,7 +141,7 @@ class SourceRoad {
                 case '.css':
                     return new CssResourceFile($tmp_resource->getRealPath());
                 case '.less':
-                    return new \Chigi\Chiji\File\LessResourceFile($tmp_resource->getRealPath());
+                    return new LessResourceFile($tmp_resource->getRealPath());
                 case '.js':
                     return new JsResourceFile($tmp_resource->getRealPath());
                 case '.png':
