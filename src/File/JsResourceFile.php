@@ -18,28 +18,11 @@
 
 namespace Chigi\Chiji\File;
 
-use Chigi\Chiji\Collection\ResourcesCollection;
-
 /**
  * Description of JsResourceFile
  *
  * @author 郷
  */
-class JsResourceFile extends AbstractResourceFile implements RequiresMapInterface {
-
-    private $requires;
-
-    public function __construct($file_path) {
-        parent::__construct($file_path);
-        $this->requires = new ResourcesCollection();
-    }
-
-    /**
-     * Get the 1-level requires resources map.
-     * @return ResourcesCollection All the direct resources required by this file
-     */
-    public function getRequires() {
-        return $this->requires;
-    }
-
+class JsResourceFile extends AbstractResourceFile {
+    
 }
