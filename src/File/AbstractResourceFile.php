@@ -50,7 +50,7 @@ class AbstractResourceFile {
      * Get the file real path.
      * @return string
      */
-    public function getRealPath() {
+    public final function getRealPath() {
         return PathHelper::pathStandardize($this->file_realpath);
     }
 
@@ -80,7 +80,7 @@ class AbstractResourceFile {
      * Return the file contents
      * @return string
      */
-    public function getFileContents() {
+    public final function getFileContents() {
         return file_get_contents($this->file_realpath);
     }
 
