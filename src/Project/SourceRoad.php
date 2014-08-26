@@ -139,6 +139,8 @@ class SourceRoad {
             switch (strtolower($matches[0])) {
                 case '.css':
                     return new CssResourceFile($tmp_resource->getRealPath());
+                case '.less':
+                    return new \Chigi\Chiji\File\LessResourceFile($tmp_resource->getRealPath());
                 case '.js':
                     return new JsResourceFile($tmp_resource->getRealPath());
                 case '.png':
