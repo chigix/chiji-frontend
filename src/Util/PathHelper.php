@@ -59,7 +59,7 @@ class PathHelper {
         while (strpos($path, '//') !== FALSE) {
             $path = str_replace('//', '/', $path);
         }
-        str_replace('./', '', $path);
+        $path = str_replace('./', '', $path);
         $path_exploded = explode('..', $path);
         $path = $path_exploded[0];
         for ($i = 1; $i < count($path_exploded); $i ++) {
