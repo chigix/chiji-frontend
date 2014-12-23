@@ -15,7 +15,8 @@
         "php": ">=5.4",
         "codegyre/robo": "0.4.5",
         "symfony/console": "2.*",
-        "oyejorge/less.php": "~1.5"
+        "oyejorge/less.php": "~1.5",
+        "chigix/io-component": "dev-master"
     },
     "autoload": {
         "psr-4": { "Chigi\\Chiji\\": "src/" }
