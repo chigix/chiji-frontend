@@ -23,7 +23,7 @@ use Chigi\Chiji\Exception\ConfigFileNotFoundException;
 use Chigi\Chiji\Exception\ConflictProjectNameException;
 use Chigi\Chiji\Exception\InvalidConfigException;
 use Chigi\Chiji\Exception\ProjectNotFoundException;
-use Chigi\Chiji\Util\PathHelper;
+use Chigi\Component\IO\File;
 use SplFileObject;
 
 /**
@@ -33,7 +33,7 @@ use SplFileObject;
  */
 class Project {
 
-    private $rootPath;
+    private $rootDir;
     private $configFile;
     private $projectName;
     private $constants;
@@ -64,19 +64,19 @@ class Project {
      */
     public function __construct($configFile) {
         if (is_string($configFile)) {
-            $configFile = new SplFileObject($configFile);
+            $configFile = new File($configFile);
         }
-        if ($configFile instanceof SplFileObject) {
+        if ($configFile instanceof File) {
             $this->configFile = $configFile;
         } else {
             throw new ConfigFileNotFoundException("The Config File Param given INVALID.");
         }
-        $this->rootPath = dirname($this->configFile->getRealPath());
-        $project_config = require($this->configFile->getRealPath());
+        $this->rootDir = new File(dirname($this->configFile->getAbsolutePath()));
+        $project_config = require($this->configFile->getAbsolutePath());
         if ($project_config instanceof ProjectConfig) {
             $this->pushConfig($project_config);
         } else {
-            throw new InvalidConfigException(sprintf("The return from config '%s' is not instance of ProjectConfig", $this->configFile->getRealPath()));
+            throw new InvalidConfigException(sprintf("The return from config '%s' is not instance of ProjectConfig", $this->configFile->getAbsolutePath()));
         }
     }
 
@@ -85,7 +85,7 @@ class Project {
      * @return string
      */
     public function getRootPath() {
-        return $this->rootPath;
+        return $this->rootDir->getAbsolutePath();
     }
 
     /**
@@ -141,29 +141,29 @@ class Project {
      * @throws InvalidConfigException
      */
     private function pushConfig(ProjectConfig $config) {
-        if (is_null($config->getProjectRootPath())) {
-            $config->setProjectRootPath($this->rootPath);
+        if (is_null($config->getProjectRootDir())) {
+            $config->setProjectRootDir($this->rootDir);
         } else {
-            $this->rootPath = $config->getProjectRootPath();
-            if (!is_dir($this->rootPath)) {
-                throw new InvalidConfigException(sprintf("The rootpath \"%s\" IS INVALID", $this->rootPath));
+            $this->rootDir = $config->getProjectRootDir();
+            if (!$this->rootDir->isDirectory()) {
+                throw new InvalidConfigException(sprintf("The rootpath \"%s\" IS INVALID", $this->getRootPath()));
             }
         }
-        $this->constants['ROOT'] = $this->rootPath;
+        // @TODO: TO REMOVE
+        $this->constants['ROOT'] = $this->rootDir->getAbsolutePath();
         $this->projectName = $config->getProjectName();
         $this->roadMap = $config->getRoadMap();
     }
 
     /**
      * Returns the first match road for the target resource file.
-     * @param string $file_path
+     * @param File $file
      * @return SourceRoad|null
      */
-    public function getMatchRoad($file_path) {
-        $real_path = PathHelper::searchRealPath($this->getRootPath(), $file_path);
+    public function getMatchRoad($file) {
         foreach ($this->roadMap as $road) {
             /* @var $road SourceRoad */
-            if ($road->resourceCheck($real_path)) {
+            if ($road->resourceCheck($file)) {
                 return $road;
             }
         }
@@ -178,7 +178,7 @@ class Project {
         $dirs = array();
         foreach ($this->roadMap as $road) {
             /* @var $road SourceRoad */
-            array_push($dirs, $road->getSourceDir());
+            array_push($dirs, $road->getSourceDir()->getAbsolutePath());
         }
         return $dirs;
     }
@@ -195,12 +195,12 @@ class Project {
             if (empty($release_dir)) {
                 continue;
             }
-            if (!is_dir($release_dir)) {
-                if (!mkdir($release_dir, 0777, TRUE)) {
+            if (!$release_dir->exists()) {
+                if (!$release_dir->mkdirs()) {
                     continue;
                 }
             }
-            array_push($dirs, $release_dir);
+            array_push($dirs, $release_dir->getAbsolutePath());
         }
         return $dirs;
     }

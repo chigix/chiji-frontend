@@ -29,8 +29,8 @@ use Chigi\Chiji\File\JsResourceFile;
 use Chigi\Chiji\File\LessResourceFile;
 use Chigi\Chiji\File\PlainResourceFile;
 use Chigi\Chiji\File\PngResourceFile;
-use Chigi\Chiji\Util\PathHelper;
 use Chigi\Chiji\Util\ResourcesManager;
+use Chigi\Component\IO\File;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
@@ -41,21 +41,31 @@ use Symfony\Component\Validator\Exception\InvalidArgumentException;
  */
 class SourceRoad {
 
+    /**
+     *
+     * @var File
+     */
     private $sourceDir;
     private $name;
     private $requires;
     private $useHash;
     private $charset;
+
+    /**
+     *
+     * @var File
+     */
     private $releaseDir;
 
     /**
      * 
      * @param string $name The roadname for the directory
-     * @param string $source_dir The target directory path, support absolute Path ONLY.
+     * @param File $source_dir The target directory, support absolute Path ONLY.
+     * @param File $release_dir The release directory, support absolute Path ONLY.
      */
-    function __construct($name, $source_dir, $release_dir = NULL) {
-        $this->sourceDir = PathHelper::pathStandardize($source_dir);
-        $this->releaseDir = PathHelper::pathStandardize($release_dir);
+    function __construct($name, File $source_dir, File $release_dir = NULL) {
+        $this->sourceDir = $source_dir;
+        $this->releaseDir = $release_dir;
         $name = trim($name);
         if (empty($name)) {
             throw new InvalidArgumentException(sprintf("The Roadname '%s' IS INVALID", $name));
@@ -68,7 +78,7 @@ class SourceRoad {
 
     /**
      * Returns the source directory
-     * @return string
+     * @return File
      */
     public final function getSourceDir() {
         return $this->sourceDir;
@@ -77,13 +87,13 @@ class SourceRoad {
     /**
      * Check if the resource match this road<br/>
      * if true then the resource could be get from manager.
-     * @param string $file_path The resource file path to check, MUST BE ABSOLUTE PATH
+     * @param File $file The resource file path to check, MUST BE ABSOLUTE PATH
      * @return boolean Returns true if the target path match the road
      */
-    public final function resourceCheck($file_path) {
-        if ($this->resourcePathMatch($file_path)) {
-            if (is_null(ResourcesManager::getResourceByPath($file_path))) {
-                $resource = $this->resourceFactory($file_path);
+    public final function resourceCheck(File $file) {
+        if ($this->resourcePathMatch($file)) {
+            if (is_null(ResourcesManager::getResourceByFile($file))) {
+                $resource = $this->resourceFactory($file);
                 ResourcesManager::registerResource($resource);
             }
             return TRUE;
@@ -94,13 +104,12 @@ class SourceRoad {
 
     /**
      * Check if the resource match this road
-     * @param string $file_path
+     * @param File $file
      * @return boolean
      */
-    protected function resourcePathMatch($file_path) {
-        $source_dir = str_replace('#', '\#', $this->sourceDir);
-        $file_path = PathHelper::pathStandardize($file_path);
-        return preg_match('#^' . $source_dir . '/' . $this->getRegex() . '#', $file_path) ? TRUE : FALSE;
+    protected function resourcePathMatch(File $file) {
+        $source_dirpath = str_replace('#', '\#', $this->sourceDir->getAbsolutePath());
+        return preg_match('#^' . $source_dirpath . '/' . $this->getRegex() . '#', $file->getAbsolutePath()) ? TRUE : FALSE;
     }
 
     /**
@@ -121,7 +130,7 @@ class SourceRoad {
 
     /**
      * Get the release directory path
-     * @return string|NULL
+     * @return File
      */
     public function getReleaseDir() {
         return $this->releaseDir;
@@ -136,21 +145,21 @@ class SourceRoad {
     protected function resourceFactory($resource_path) {
         $tmp_resource = new PlainResourceFile($resource_path);
         $matches = array();
-        if (preg_match('#\.[a-zA-Z0-9]+$#', $tmp_resource->getRealPath(), $matches)) {
+        if (preg_match('#\.[a-zA-Z0-9]+$#', $tmp_resource->getFile()->getAbsolutePath(), $matches)) {
             switch (strtolower($matches[0])) {
                 case '.css':
-                    return new CssResourceFile($tmp_resource->getRealPath());
+                    return new CssResourceFile($tmp_resource->getFile());
                 case '.less':
-                    return new LessResourceFile($tmp_resource->getRealPath());
+                    return new LessResourceFile($tmp_resource->getFile());
                 case '.js':
-                    return new JsResourceFile($tmp_resource->getRealPath());
+                    return new JsResourceFile($tmp_resource->getFile());
                 case '.png':
-                    return new PngResourceFile($tmp_resource->getRealPath());
+                    return new PngResourceFile($tmp_resource->getFile());
                 case '.jpg':
                 case '.jpeg':
-                    return new JpegResourceFile($tmp_resource->getRealPath());
+                    return new JpegResourceFile($tmp_resource->getFile());
                 case '.gif':
-                    return new GifResourceFile($tmp_resource->getRealPath());
+                    return new GifResourceFile($tmp_resource->getFile());
                 default:
                     return $tmp_resource;
             }
@@ -162,21 +171,22 @@ class SourceRoad {
     /**
      * Execute the release action for the resource
      * @param AbstractResourceFile $resource
+     * @throws FileWriteErrorException
      */
     public function releaseResource(AbstractResourceFile $resource) {
         if (!is_null($this->getReleaseDir())) {
             $relative_path = $resource->getRelativePath($this->getSourceDir());
-            if (!is_dir($this->getReleaseDir())) {
-                mkdir($this->getReleaseDir(), 0777, TRUE);
+            if (!$this->getReleaseDir()->exists()) {
+                $this->getReleaseDir()->mkdirs();
             }
-            $release_path = PathHelper::searchRealPath($this->getReleaseDir(), $relative_path);
-            $release_dir = dirname($release_path);
-            if (!is_dir($release_dir)) {
-                if (!mkdir($release_dir, 0777, TRUE)) {
-                    throw new FileWriteErrorException("The directory '$release_dir' create fails.");
+            $release_file = new File($relative_path, $this->getReleaseDir()->getAbsolutePath());
+            $release_dir = $release_file->getParentFile();
+            if (!$release_dir->exists()) {
+                if (!$release_dir->mkdirs()) {
+                    throw new FileWriteErrorException("The directory '" . $release_dir->getAbsolutePath() . "' create fails.");
                 }
             }
-            file_put_contents($release_path, $resource->getFileContents());
+            file_put_contents($release_file->getAbsolutePath(), $resource->getFileContents());
         }
     }
 

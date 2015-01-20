@@ -19,6 +19,7 @@
 namespace Chigi\Chiji\Project;
 
 use Chigi\Chiji\Collection\RoadMap;
+use Chigi\Component\IO\File;
 
 /**
  * The Abstract class for project config.
@@ -27,26 +28,41 @@ use Chigi\Chiji\Collection\RoadMap;
  */
 abstract class ProjectConfig {
 
-    private $projectRootPath = null;
+    /**
+     *
+     * @var File
+     */
+    private $projectRootDir = null;
 
     public function __construct() {
         
     }
 
     /**
+     * @todo TO REMOVE
      * Get the project root path defination
      * @return string
      */
     public function getProjectRootPath() {
-        return $this->projectRootPath;
+        return $this->projectRootDir->getAbsolutePath();
     }
 
     /**
-     * Set the project root path defination
-     * @param string $dir_path
+     * 
+     * @return File
      */
-    public function setProjectRootPath($dir_path) {
-        $this->projectRootPath = $dir_path;
+    public function getProjectRootDir() {
+        return $this->projectRootDir;
+    }
+
+    /**
+     * Set the project root directory defination.
+     * 
+     * @param File $root_dir
+     */
+    public function setProjectRootDir(File $root_dir) {
+        $this->projectRootDir = $root_dir;
+        return $this;
     }
 
     /**
@@ -60,8 +76,8 @@ abstract class ProjectConfig {
      */
     public function getRoadMap() {
         $road_map = new RoadMap();
-        $road_map->append(new LessRoad("LESSCSS", $this->getProjectRootPath()));
-        $road_map->append(new SourceRoad("ROOT", $this->getProjectRootPath()));
+        $road_map->append(new LessRoad("LESSCSS", $this->getProjectRootDir()));
+        $road_map->append(new SourceRoad("ROOT", $this->getProjectRootDir()));
         return $road_map;
     }
 

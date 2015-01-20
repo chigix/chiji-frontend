@@ -19,7 +19,8 @@
 namespace Chigi\Chiji\File;
 
 use Chigi\Chiji\Exception\ResourceNotFoundException;
-use Chigi\Chiji\Util\PathHelper;
+use Chigi\Component\IO\File;
+use Chigi\Component\IO\FileSystem;
 
 /**
  * The abstract class for resource file
@@ -29,51 +30,46 @@ use Chigi\Chiji\Util\PathHelper;
 class AbstractResourceFile {
 
     /**
-     * The real path of the current resource file.
-     * @var string
+     * The current resource file.
+     * @var File
      */
-    private $file_realpath;
+    private $file;
 
     /**
      * 
-     * @param string $file_path
+     * @param File $file
      * @throws ResourceNotFoundException
      */
-    public function __construct($file_path) {
-        $this->file_realpath = realpath($file_path);
-        if ($this->file_realpath === FALSE) {
+    public function __construct(File $file) {
+        $this->file = $file;
+        if (!$this->file->isFile()) {
             throw new ResourceNotFoundException("The Resource file '$file_path' NOT FOUND.");
         }
     }
 
     /**
-     * Get the file real path.
-     * @return string
+     * Get the resource file.
+     * @return File
      */
-    public final function getRealPath() {
-        return PathHelper::pathStandardize($this->file_realpath);
+    public final function getFile() {
+        return $this->file;
+    }
+
+    public function getRealPath() {
+        return $this->file->getAbsolutePath();
     }
 
     /**
      * Returns the relative path
-     * @param string $base_dir The base_dir to be based upon for relative path calculation
+     * @param File $base_dir The base_dir to be based upon for relative path calculation
      * @return string the relative path
      */
-    public function getRelativePath($base_dir) {
-        $back_count = 0;
-        while (strpos($this->getRealPath(), $base_dir) !== 0 && !empty($base_dir)) {
-            $base_dir = dirname($base_dir);
-            $back_count ++;
-        }
-        $return_path = substr($this->getRealPath(), strlen($base_dir) + 1);
-        for ($i = 0; $i < $back_count; $i++) {
-            $return_path = '../' . $return_path;
-        }
-        return $return_path;
+    public function getRelativePath(File $base_dir) {
+        return FileSystem::getFileSystem()->makePathRelative($this->file->getParent(), $base_dir->getAbsolutePath()) . $this->file->getName();
     }
 
     public function getId() {
-        return md5($this->file_realpath);
+        return md5($this->file->getAbsolutePath());
     }
 
     /**
@@ -81,7 +77,7 @@ class AbstractResourceFile {
      * @return string
      */
     public final function getFileContents() {
-        return file_get_contents($this->file_realpath);
+        return file_get_contents($this->file->getAbsolutePath());
     }
 
     /**
@@ -89,7 +85,7 @@ class AbstractResourceFile {
      * @return string
      */
     public function getHash() {
-        return md5_file($this->getRealPath());
+        return md5_file($this->getFile()->getAbsolutePath());
     }
 
 }

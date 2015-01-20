@@ -20,7 +20,8 @@ namespace Chigi\Chiji\Project;
 
 use Chigi\Chiji\Exception\FileWriteErrorException;
 use Chigi\Chiji\File\AbstractResourceFile;
-use Chigi\Chiji\Util\PathHelper;
+use Less_Parser;
+use Chigi\Component\IO\File;
 
 /**
  * Description of LessRoad
@@ -63,19 +64,19 @@ class LessRoad extends SourceRoad {
             } else {
                 $relative_path .= '.css';
             }
-            if (!is_dir($this->getReleaseDir())) {
-                mkdir($this->getReleaseDir(), 0777, TRUE);
+            if (!$this->getReleaseDir()->exists()) {
+                $this->getReleaseDir()->mkdirs();
             }
-            $release_path = PathHelper::searchRealPath($this->getReleaseDir(), $relative_path);
-            $release_dir = dirname($release_path);
-            if (!is_dir($release_dir)) {
-                if (!mkdir($release_dir, 0777, TRUE)) {
-                    throw new FileWriteErrorException("The directory '$release_dir' create fails.");
+            $release_file = new File($relative_path, $this->getReleaseDir()->getAbsolutePath());
+            $release_dir = $release_file->getAbsoluteFile()->getParentFile();
+            if (!$release_dir->exists()) {
+                if (!$release_dir->mkdirs()) {
+                    throw new FileWriteErrorException("The directory '" . $release_dir->getAbsolutePath() . "' create fails.");
                 }
             }
-            $parser = new \Less_Parser();
-            $parser->parseFile($resource->getRealPath());
-            file_put_contents($release_path, $parser->getCss());
+            $parser = new Less_Parser();
+            $parser->parseFile($resource->getFile()->getAbsolutePath());
+            file_put_contents($release_file->getAbsolutePath(), $parser->getCss());
         }
     }
 

@@ -22,7 +22,7 @@ use Chigi\Chiji\Exception\InvalidConfigException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\RequiresMapInterface;
 use Chigi\Chiji\Project\Project;
-use Chigi\Chiji\Util\PathHelper;
+use Chigi\Component\IO\File;
 
 /**
  * Description of Release
@@ -65,18 +65,19 @@ class Release extends FunctionAnnotation {
             foreach ($resource->getRequires() as $resource_required) {
                 /* @var $resource_required AbstractResourceFile */
                 if ($resource_required instanceof $type) {
-                    if (is_null($road = Project::getRegistered()->getMatchRoad($resource_required->getRealPath()))) {
-                        throw new InvalidConfigException(sprintf("No roadmap for the resource '%s'.", $resource_required->getRealPath()));
+                    if (is_null($road = Project::getRegistered()->getMatchRoad($resource_required->getFile()))) {
+                        throw new InvalidConfigException(sprintf("No roadmap for the resource '%s'.", $resource_required->getFile()));
                     } else {
                         $road->releaseResource($resource_required);
-                        $this->say('[RELEASED] ' . $resource_required->getRealPath());
+                        $this->say('[RELEASED] ' . $resource_required->getFile()->getAbsolutePath());
                     }
                     array_push($body_lines, $road->getReleaseFormatUrl($resource_required, $this->format));
                     $this->say('[WRITEIN] ' . $this->format . ' ' . $resource_required->getRelativePath($road->getSourceDir()));
                 }
             }
         }
-        file_put_contents(PathHelper::searchRealPath($this->getScope()->getRealPath(), $this->path), implode("\n", $body_lines));
+        $release_file = new File($this->path, dirname($this->getScope()->getFile()->getAbsolutePath()));
+        file_put_contents($release_file->getAbsolutePath(), implode("\n", $body_lines));
     }
 
     public function getExecuteTime() {

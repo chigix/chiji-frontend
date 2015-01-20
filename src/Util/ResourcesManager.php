@@ -22,6 +22,7 @@ use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\Annotation;
 use Chigi\Chiji\File\PlainResourceFile;
+use Chigi\Component\IO\File;
 
 /**
  * Description of ResourcesManager
@@ -49,17 +50,17 @@ class ResourcesManager {
     /**
      * Get the target Resource File Object Via given path<br/>
      * OR return null if not registered.
-     * @param string $path
+     * @param File $file
      * @return AbstractResourceFile|NULL
      * @throws ResourceNotFoundException
      */
-    public static function getResourceByPath($path) {
-        $real_path = realpath($path);
-        if ($real_path === FALSE) {
-            throw new ResourceNotFoundException("The $path NOT FOUND");
+    public static function getResourceByFile(File $file) {
+        if ($file->isFile() && $file->exists()) {
+            $tmp_resource = new PlainResourceFile($file);
+            return self::getResourceById($tmp_resource->getId());
+        } else {
+            throw new ResourceNotFoundException("The " . $file->getAbsolutePath() . " NOT FOUND");
         }
-        $tmp_resource = new PlainResourceFile($path);
-        return self::getResourceById($tmp_resource->getId());
     }
 
     /**

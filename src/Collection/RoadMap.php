@@ -39,11 +39,18 @@ class RoadMap extends ArrayIterator {
         $this->offsetSet($road->getName(), $road);
     }
 
+    /**
+     * Append a given resource road into this map.
+     * 
+     * @param SourceRoad $road
+     * @return \Chigi\Chiji\Collection\RoadMap
+     */
     public function append($road) {
         if (!in_array($road->getName(), $this->priorityQueue)) {
             $this->put($road);
             array_push($this->priorityQueue, $road->getName());
         }
+        return $this;
     }
 
     public function prepend(SourceRoad $road) {
