@@ -24,7 +24,6 @@ use Chigi\Chiji\Exception\ConflictProjectNameException;
 use Chigi\Chiji\Exception\InvalidConfigException;
 use Chigi\Chiji\Exception\ProjectNotFoundException;
 use Chigi\Component\IO\File;
-use SplFileObject;
 
 /**
  * Description of Project
@@ -36,7 +35,6 @@ class Project {
     private $rootDir;
     private $configFile;
     private $projectName;
-    private $constants;
 
     /**
      *
@@ -58,7 +56,7 @@ class Project {
 
     /**
      * 
-     * @param SplFileObject $configFile
+     * @param File $configFile
      * @throws ConfigFileNotFoundException
      * @throws InvalidConfigException
      */
@@ -89,12 +87,12 @@ class Project {
     }
 
     /**
-     * Regist a project object as static
+     * Register a project object as static
      * @param Project $project
      * @param boolean $fresh_current Is to be set as current?
      * @throws ConflictProjectNameException
      */
-    public static function registProject(Project $project, $fresh_current = FALSE) {
+    public static function registerProject(Project $project, $fresh_current = FALSE) {
         if (isset(self::$instances[$project->getProjectName()])) {
             throw new ConflictProjectNameException(sprintf("The project \"%s\" EXISTS.", $project->getProjectName()));
         }
@@ -149,8 +147,6 @@ class Project {
                 throw new InvalidConfigException(sprintf("The rootpath \"%s\" IS INVALID", $this->getRootPath()));
             }
         }
-        // @TODO: TO REMOVE
-        $this->constants['ROOT'] = $this->rootDir->getAbsolutePath();
         $this->projectName = $config->getProjectName();
         $this->roadMap = $config->getRoadMap();
     }

@@ -25,7 +25,9 @@ use Chigi\Chiji\File\PlainResourceFile;
 use Chigi\Component\IO\File;
 
 /**
- * Description of ResourcesManager
+ * Resource manager is a globally accessible stack for Registered ResourceFiles 
+ * for project. This manager is a map implementation with a identification key 
+ * generated from absolute filepath.
  *
  * @author 郷
  */
