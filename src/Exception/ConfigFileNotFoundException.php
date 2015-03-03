@@ -19,7 +19,7 @@
 namespace Chigi\Chiji\Exception;
 
 /**
- * Description of ConfigFileNotFoundException
+ * The Config file for the target project is missing.
  *
  * @author 郷
  */

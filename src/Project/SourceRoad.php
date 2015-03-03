@@ -35,7 +35,8 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
 /**
- * Config for a resource road
+ * Config for a release road for ONE RESOURCE. 
+ * Generally only one type of resource road should be included in a Source Roadmap.
  *
  * @author 郷
  */
@@ -170,24 +171,21 @@ class SourceRoad {
 
     /**
      * Execute the release action for the resource
-     * @param AbstractResourceFile $resource
+     * @param AbstractResourceFile $resource The source file to release.
      * @throws FileWriteErrorException
      */
     public function releaseResource(AbstractResourceFile $resource) {
-        if (!is_null($this->getReleaseDir())) {
-            $relative_path = $resource->getRelativePath($this->getSourceDir());
-            if (!$this->getReleaseDir()->exists()) {
-                $this->getReleaseDir()->mkdirs();
-            }
-            $release_file = new File($relative_path, $this->getReleaseDir()->getAbsolutePath());
-            $release_dir = $release_file->getParentFile();
-            if (!$release_dir->exists()) {
-                if (!$release_dir->mkdirs()) {
-                    throw new FileWriteErrorException("The directory '" . $release_dir->getAbsolutePath() . "' create fails.");
-                }
-            }
-            file_put_contents($release_file->getAbsolutePath(), $resource->getFileContents());
+        if (!$this->getReleaseDir()->exists()) {
+            $this->getReleaseDir()->mkdirs();
         }
+        $release_file = new File($this->makeReleaseRelativePath($resource), $this->getReleaseDir()->getAbsolutePath());
+        $release_dir = $release_file->getParentFile();
+        if (!$release_dir->exists()) {
+            if (!$release_dir->mkdirs()) {
+                throw new FileWriteErrorException("The directory '" . $release_dir->getAbsolutePath() . "' create fails.");
+            }
+        }
+        file_put_contents($release_file->getAbsolutePath(), $resource->getFileContents());
     }
 
     /**
@@ -196,11 +194,12 @@ class SourceRoad {
      * @param string $format_name The name of the target format
      * @return string The result formatted string
      * @throws UndefinedReleaseUrlFormatException
+     * @throws FileWriteErrorException
      */
     public function getReleaseFormatUrl(AbstractResourceFile $resource, $format_name) {
         $format_map = $this->getReleaseFormatMap();
         if (isset($format_map[$format_name])) {
-            $url = str_replace('[FILE]', $resource->getRelativePath($this->getSourceDir()), $format_map[$format_name]);
+            $url = str_replace('[FILE]', $this->makeReleaseRelativePath($resource), $format_map[$format_name]);
             switch ($this->getUrlStampType()) {
                 case UrlStampEnum::NONE:
                     $url = str_replace('[STAMP]', '', $url);
@@ -213,7 +212,8 @@ class SourceRoad {
                     break;
                 case UrlStampEnum::HASH:
                 default:
-                    $url = str_replace('[STAMP]', substr($resource->getHash(), 0, 8), $url);
+                    $release_file = new File($this->makeReleaseRelativePath($resource), $this->getReleaseDir()->getAbsolutePath());
+                    $url = str_replace('[STAMP]', substr(md5_file($release_file->getAbsolutePath()), 0, 8), $url);
                     break;
             }
             return $url;
@@ -238,6 +238,19 @@ class SourceRoad {
      */
     protected function getUrlStampType() {
         return UrlStampEnum::NONE;
+    }
+
+    /**
+     * Construct a file object to release for the source $resource.
+     * @param AbstractResourceFile $resource The source.
+     * @return string release path relative to the release dir in configure.
+     * @throws FileWriteErrorException
+     */
+    protected function makeReleaseRelativePath(AbstractResourceFile $resource) {
+        if (is_null($this->getReleaseDir())) {
+            throw new FileWriteErrorException("The release dir configuration is missed for " . get_class($this));
+        }
+        return $resource->getRelativePath($this->getSourceDir());
     }
 
 }
