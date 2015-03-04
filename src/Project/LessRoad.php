@@ -48,10 +48,11 @@ class LessRoad extends SourceRoad {
             }
         }
         file_put_contents($release_file->getAbsolutePath(), $parser->getCss());
+        //var_dump($parser->AllParsedFiles());
     }
 
     /**
-     * Construct a file object to release for the source $resource.
+     * Generate the relative path to release for the given source.
      * @param AbstractResourceFile $resource The source.
      * @return string release path relative to the release dir in configure.
      * @throws FileWriteErrorException

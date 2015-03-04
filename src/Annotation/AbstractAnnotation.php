@@ -20,6 +20,7 @@ namespace Chigi\Chiji\Annotation;
 
 use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\File\AbstractResourceFile;
+use Chigi\Chiji\Project\Project;
 
 /**
  * Description of AbstractAnnotation
@@ -47,6 +48,7 @@ abstract class AbstractAnnotation {
     /**
      * Get the scope of the resource file object
      * @return AbstractResourceFile
+     * @throws ResourceNotFoundException
      */
     protected function getScope() {
         if ($this->annotation->getScope() instanceof AbstractResourceFile) {
@@ -62,6 +64,17 @@ abstract class AbstractAnnotation {
      */
     protected function getOccursPos() {
         return $this->annotation->getOccursPos();
+    }
+
+    /**
+     * Gets the parent of this annotation.
+     * 
+     * @return Project The parent project of this annotation.
+     * @throws \Chigi\Chiji\Exception\ProjectMemberNotFoundException
+     * @throws ResourceNotFoundException
+     */
+    public function getParentProject() {
+        return $this->getScope()->getParentProject();
     }
 
 }

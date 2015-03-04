@@ -34,8 +34,8 @@ class ResourcesCollection extends ArrayIterator {
      * @param AbstractResourceFile $resource
      */
     public function addResource(AbstractResourceFile $resource) {
-        if (!parent::offsetExists($resource->getId())) {
-            parent::offsetSet($resource->getId(), $resource);
+        if (!parent::offsetExists($resource->getMemberId())) {
+            parent::offsetSet($resource->getMemberId(), $resource);
         }
     }
 
@@ -44,8 +44,8 @@ class ResourcesCollection extends ArrayIterator {
      * @param \Chigi\Chiji\File\AbstractResourceFile $resource
      */
     public function removeResource(AbstractResourceFile $resource) {
-        if (parent::offsetExists($resource->getId())) {
-            parent::offsetUnset($resource->getId());
+        if (parent::offsetExists($resource->getMemberId())) {
+            parent::offsetUnset($resource->getMemberId());
         }
     }
 

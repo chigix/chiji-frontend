@@ -27,7 +27,7 @@ use Chigi\Component\IO\FileSystem;
  *
  * @author 郷
  */
-class AbstractResourceFile {
+class AbstractResourceFile implements \Chigi\Chiji\Project\MemberIdentifier {
 
     /**
      * The current resource file.
@@ -68,10 +68,6 @@ class AbstractResourceFile {
         return FileSystem::getFileSystem()->makePathRelative($this->file->getParent(), $base_dir->getAbsolutePath()) . $this->file->getName();
     }
 
-    public function getId() {
-        return md5($this->file->getAbsolutePath());
-    }
-
     /**
      * Return the file contents
      * @return string
@@ -86,6 +82,34 @@ class AbstractResourceFile {
      */
     public function getHash() {
         return md5_file($this->getFile()->getAbsolutePath());
+    }
+
+    private $__member__id = null;
+    /**
+     * Get this member object id.
+     * @return string This member object identifier.
+     */
+    public final function getMemberId() {
+        if (is_null($this->__member__id)) {
+            $this->__member__id = uniqid();
+        }
+        return $this->__member__id;
+    }
+
+    private $__parent_project = null;
+    
+    /**
+     * Gets the parent project of this registered resource.
+     * 
+     * @return \Chigi\Chiji\Project\Project The Parent Project of this resource.
+     * @throws \Chigi\Chiji\Exception\ProjectMemberNotFoundException
+     */
+    public final function getParentProject() {
+        $result = \Chigi\Chiji\Util\ProjectUtil::searchRelativeProject($this);
+        if (count($result) < 1) {
+            throw new \Chigi\Chiji\Exception\ProjectMemberNotFoundException("MEMBER NOT FOUND");
+        }
+        return $result[0];
     }
 
 }

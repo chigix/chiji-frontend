@@ -72,7 +72,7 @@ class HtmlResourceFile extends AbstractResourceFile implements RequiresMapInterf
         return $this->requires;
     }
 
-    public function parseComments() {
+    private final function parseComments() {
         $matches = array();
         preg_match_all('#\<![ \r\n\t]*(--([^\-]|[\r\n]|-[^\-])*--[ \r\n\t]*)\>#', $this->getFileContents(), $matches);
         $file_occurs_offset = 0;

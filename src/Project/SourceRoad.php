@@ -40,7 +40,7 @@ use Symfony\Component\Validator\Exception\InvalidArgumentException;
  *
  * @author 郷
  */
-class SourceRoad {
+class SourceRoad implements MemberIdentifier {
 
     /**
      *
@@ -93,9 +93,8 @@ class SourceRoad {
      */
     public final function resourceCheck(File $file) {
         if ($this->resourcePathMatch($file)) {
-            if (is_null(ResourcesManager::getResourceByFile($file))) {
-                $resource = $this->resourceFactory($file);
-                ResourcesManager::registerResource($resource);
+            if (is_null($this->getParentProject()->getResourceByFile($file))) {
+                $this->getParentProject()->registerResource($this->resourceFactory($file));
             }
             return TRUE;
         } else {
@@ -139,12 +138,12 @@ class SourceRoad {
 
     /**
      * Get the resource object with specific internal resource class.
-     * @param string $resource_path Support absolute path ONLY.
+     * @param File $file The resource as file object.
      * @return AbstractResourceFile The resource object from factory
      * @throws ResourceNotFoundException
      */
-    protected function resourceFactory($resource_path) {
-        $tmp_resource = new PlainResourceFile($resource_path);
+    protected function resourceFactory(File $file) {
+        $tmp_resource = new PlainResourceFile($file);
         $matches = array();
         if (preg_match('#\.[a-zA-Z0-9]+$#', $tmp_resource->getFile()->getAbsolutePath(), $matches)) {
             switch (strtolower($matches[0])) {
@@ -241,7 +240,7 @@ class SourceRoad {
     }
 
     /**
-     * Construct a file object to release for the source $resource.
+     * Generate the relative path to release for the given source.
      * @param AbstractResourceFile $resource The source.
      * @return string release path relative to the release dir in configure.
      * @throws FileWriteErrorException
@@ -251,6 +250,36 @@ class SourceRoad {
             throw new FileWriteErrorException("The release dir configuration is missed for " . get_class($this));
         }
         return $resource->getRelativePath($this->getSourceDir());
+    }
+
+    
+    private $__member__id = null;
+    /**
+     * Get this member object id.
+     * @return string This member object identifier.
+     */
+    public final function getMemberId() {
+        if (is_null($this->__member__id)) {
+            $this->__member__id = uniqid();
+        }
+        return $this->__member__id;
+    }
+
+    private $__parent__project = null;
+    /**
+     * Gets the parent of this annotation.
+     * 
+     * @return Project The parent project of this annotation.
+     */
+    public final function getParentProject() {
+        if (\is_null($this->__parent__project)) {
+            $result = \Chigi\Chiji\Util\ProjectUtil::searchRelativeProject($this);
+            if (\count($result) < 1) {
+                throw new \Chigi\Chiji\Exception\ProjectMemberNotFoundException("SOURCE ROAD NOT FOUND");
+            }
+            $this->__parent__project = $result[0];
+        }
+        return $this->__parent__project;
     }
 
 }

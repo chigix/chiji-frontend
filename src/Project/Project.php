@@ -20,9 +20,8 @@ namespace Chigi\Chiji\Project;
 
 use Chigi\Chiji\Collection\RoadMap;
 use Chigi\Chiji\Exception\ConfigFileNotFoundException;
-use Chigi\Chiji\Exception\ConflictProjectNameException;
 use Chigi\Chiji\Exception\InvalidConfigException;
-use Chigi\Chiji\Exception\ProjectNotFoundException;
+use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Component\IO\File;
 
 /**
@@ -43,16 +42,11 @@ class Project {
     private $roadMap;
 
     /**
+     * The Resources.
      *
-     * @var array<Project>
+     * @var {md5($resources_path):AbstractResourceFile}
      */
-    private static $instances = array();
-
-    /**
-     *
-     * @var Project
-     */
-    private static $currentProject = null;
+    private $resources = array();
 
     /**
      * 
@@ -84,44 +78,6 @@ class Project {
      */
     public function getRootPath() {
         return $this->rootDir->getAbsolutePath();
-    }
-
-    /**
-     * Register a project object as static
-     * @param Project $project
-     * @param boolean $fresh_current Is to be set as current?
-     * @throws ConflictProjectNameException
-     */
-    public static function registerProject(Project $project, $fresh_current = FALSE) {
-        if (isset(self::$instances[$project->getProjectName()])) {
-            throw new ConflictProjectNameException(sprintf("The project \"%s\" EXISTS.", $project->getProjectName()));
-        }
-        self::$instances[$project->getProjectName()] = $project;
-        if ($fresh_current) {
-            self::$currentProject = $project;
-        }
-    }
-
-    /**
-     * Get the target project registered.
-     * @param string $project_name
-     * @return Project
-     * @throws ProjectNotFoundException
-     */
-    public static function getRegistered($project_name = null) {
-        if (empty($project_name)) {
-            if (is_null(self::$currentProject)) {
-                throw new ProjectNotFoundException("NONE project registered as current.");
-            } else {
-                return self::$currentProject;
-            }
-        } else {
-            if (isset(self::$instances[$project_name])) {
-                return self::$instances[$project_name];
-            } else {
-                throw new ProjectNotFoundException(sprintf("The project \"%s\" NOT registered.", $project_name));
-            }
-        }
     }
 
     /**
@@ -199,6 +155,54 @@ class Project {
             array_push($dirs, $release_dir->getAbsolutePath());
         }
         return $dirs;
+    }
+
+    /**
+     * Get all the Member Elements such as SourceRoad, annotation and resources.
+     * 
+     * @return {memberId:MemberIdentifier}
+     */
+    public function getAllMembers() {
+        $this->roadMap;
+        $this->resources;
+        $result = array();
+        foreach ($this->roadMap as $road) {
+            /* @var $road SourceRoad */
+            $result[$road->getMemberId()] = $road;
+        }
+        foreach ($this->resources as $resource) {
+            /* @var $resource AbstractResourceFile */
+            $result[$resource->getMemberId()] = $resource;
+        }
+        return $result;
+    }
+
+    /**
+     * Register a resource to this project.
+     * 
+     * @param AbstractResourceFile $resource
+     */
+    public function registerResource(AbstractResourceFile $resource) {
+        if (!isset($this->resources[md5($resource->getRealPath())])) {
+            $this->resources[md5($resource->getRealPath())] = $resource;
+            if ($resource instanceof \Chigi\Chiji\File\Annotation) {
+                $resource->analyzeAnnotations();
+            }
+        }
+    }
+
+    /**
+     * Get the target resource via the given file object or return null
+     * if not registered.
+     * 
+     * @param File $file
+     */
+    public function getResourceByFile(File $file) {
+        if (isset($this->resources[md5($file->getAbsolutePath())])) {
+            return $this->resources[md5($file->getAbsolutePath())];
+        } else {
+            return null;
+        }
     }
 
 }
