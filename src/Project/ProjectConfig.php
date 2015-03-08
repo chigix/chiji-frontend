@@ -19,6 +19,7 @@
 namespace Chigi\Chiji\Project;
 
 use Chigi\Chiji\Collection\RoadMap;
+use Chigi\Chiji\Util\CacheManager;
 use Chigi\Component\IO\File;
 
 /**
@@ -76,9 +77,49 @@ abstract class ProjectConfig {
      */
     public function getRoadMap() {
         $road_map = new RoadMap();
-        $road_map->append(new LessRoad("LESSCSS", $this->getProjectRootDir()));
-        $road_map->append(new SourceRoad("ROOT", $this->getProjectRootDir()));
+        $road_map->append(new LessRoad("LESSCSS", $this->generateCacheDir($this->getProjectRootDir())));
+        $road_map->append(new SourceRoad("ROOT", $this->generateCacheDir($this->getProjectRootDir())));
+        $road_map->append(new BuildRoad("BuildCache", $this->getProjectRootDir()));
         return $road_map;
+    }
+
+    /**
+     * The Cache Directory for project building.
+     *
+     * @var File
+     */
+    private $__project_cache_dir = null;
+
+    /**
+     * Set the Cache directory for this project.
+     * 
+     * @return File
+     */
+    public function getCacheDir() {
+        if (is_null($this->__project_cache_dir)) {
+            $this->__project_cache_dir = new File("." . uniqid(), $this->projectRootDir->getAbsolutePath());
+        }
+        return $this->__project_cache_dir;
+    }
+
+    /**
+     *
+     * @var CacheManager
+     */
+    private $__mock_cache_manager = null;
+
+    /**
+     * 
+     * @param File $rcDir
+     * @return File
+     */
+    protected final function generateCacheDir(File $rcDir) {
+        $this->__mock_cache_manager->registerDirectory($rcDir);
+        return $this->__mock_cache_manager->searchCacheDir($rcDir);
+    }
+
+    public final function setCacheManager(CacheManager $cache) {
+        $this->__mock_cache_manager = $cache;
     }
 
 }

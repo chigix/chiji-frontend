@@ -41,11 +41,7 @@ class RequireAnnotation extends AbstractAnnotation {
             throw new ResourceNotFoundException("The file $param_str NOT FOUND FROM " . $file->getAbsolutePath());
         }
         if (is_null($require_resource = $this->getParentProject()->getResourceByFile($file))) {
-            $road = $this->getParentProject()->getMatchRoad($file);
-            if (is_null($road)) {
-                throw new ResourceNotFoundException("NO roadmap found for the resource:" . $file->getAbsolutePath());
-            }
-            $require_resource = $this->getParentProject()->getResourceByFile($file);
+            throw new \Chigi\Chiji\Exception\ProjectMemberNotFoundException("ERROR: UNREGISTERED Resource File: " + $file->getAbsolutePath());
         }
         if ($this->getScope() instanceof RequiresMapInterface) {
             $this->getScope()->getRequires()->addResource($require_resource);

@@ -64,14 +64,14 @@ class Release extends FunctionAnnotation {
             foreach ($resource->getRequires() as $resource_required) {
                 /* @var $resource_required AbstractResourceFile */
                 if ($resource_required instanceof $type) {
-                    if (is_null($road = $this->getParentProject()->getMatchRoad($resource_required->getFile()))) {
-                        throw new InvalidConfigException(sprintf("No roadmap for the resource '%s'.", $resource_required->getFile()));
+                    if (is_null($road = $this->getParentProject()->getMatchRoad($resource_required->getFinalCache()->getFile()))) {
+                        throw new InvalidConfigException(sprintf("No roadmap for the resource cache '%s'.", $resource_required->getFile()));
                     } else {
-                        $road->releaseResource($resource_required);
+                        $road->releaseResource($resource_required->getFinalCache());
                         $this->say('[RELEASED] ' . $resource_required->getFile()->getAbsolutePath());
                     }
-                    array_push($body_lines, $road->getReleaseFormatUrl($resource_required, $this->format));
-                    $this->say('[WRITEIN] ' . $this->format . ' ' . $resource_required->getRelativePath($road->getSourceDir()));
+                    array_push($body_lines, $road->getReleaseFormatUrl($resource_required->getFinalCache(), $this->format));
+                    $this->say('[WRITEIN] ' . $this->format . ' ' . $resource_required->getFinalCache()->getRelativePath($road->getSourceDir()));
                 }
             }
         }

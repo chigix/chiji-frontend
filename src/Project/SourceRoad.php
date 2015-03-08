@@ -20,6 +20,7 @@ namespace Chigi\Chiji\Project;
 
 use Chigi\Chiji\Collection\ResourcesCollection;
 use Chigi\Chiji\Exception\FileWriteErrorException;
+use Chigi\Chiji\Exception\ProjectMemberNotFoundException;
 use Chigi\Chiji\Exception\UndefinedReleaseUrlFormatException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\CssResourceFile;
@@ -29,7 +30,7 @@ use Chigi\Chiji\File\JsResourceFile;
 use Chigi\Chiji\File\LessResourceFile;
 use Chigi\Chiji\File\PlainResourceFile;
 use Chigi\Chiji\File\PngResourceFile;
-use Chigi\Chiji\Util\ResourcesManager;
+use Chigi\Chiji\Util\ProjectUtil;
 use Chigi\Component\IO\File;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Validator\Exception\InvalidArgumentException;
@@ -93,8 +94,9 @@ class SourceRoad implements MemberIdentifier {
      */
     public final function resourceCheck(File $file) {
         if ($this->resourcePathMatch($file)) {
-            if (is_null($this->getParentProject()->getResourceByFile($file))) {
-                $this->getParentProject()->registerResource($this->resourceFactory($file));
+            if (is_null($this->getParentProject()->getResourceByFile($file)) && !is_null($resource = $this->resourceFactory($file))) {
+                $this->getParentProject()->registerResource($resource);
+                $this->buildCache($resource);
             }
             return TRUE;
         } else {
@@ -109,6 +111,8 @@ class SourceRoad implements MemberIdentifier {
      */
     protected function resourcePathMatch(File $file) {
         $source_dirpath = str_replace('#', '\#', $this->sourceDir->getAbsolutePath());
+        $source_dirpath = str_replace('[', '\[', $source_dirpath);
+        $source_dirpath = str_replace(']', '\]', $source_dirpath);
         return preg_match('#^' . $source_dirpath . '/' . $this->getRegex() . '#', $file->getAbsolutePath()) ? TRUE : FALSE;
     }
 
@@ -116,7 +120,7 @@ class SourceRoad implements MemberIdentifier {
      * Get the current road name
      * @return string
      */
-    public function getName() {
+    public final function getName() {
         return $this->name;
     }
 
@@ -137,35 +141,33 @@ class SourceRoad implements MemberIdentifier {
     }
 
     /**
-     * Get the resource object with specific internal resource class.
+     * Get the resource object with specific internal resource class.<br>
+     * If the factory returns null, then this file don't match this road and wouldn't 
+     * be registered from this road.
      * @param File $file The resource as file object.
      * @return AbstractResourceFile The resource object from factory
      * @throws ResourceNotFoundException
      */
     protected function resourceFactory(File $file) {
-        $tmp_resource = new PlainResourceFile($file);
         $matches = array();
-        if (preg_match('#\.[a-zA-Z0-9]+$#', $tmp_resource->getFile()->getAbsolutePath(), $matches)) {
+        if (preg_match('#\.[a-zA-Z0-9]+$#', $file->getAbsolutePath(), $matches)) {
             switch (strtolower($matches[0])) {
                 case '.css':
-                    return new CssResourceFile($tmp_resource->getFile());
+                    return new CssResourceFile($file);
                 case '.less':
-                    return new LessResourceFile($tmp_resource->getFile());
+                    return new LessResourceFile($file);
                 case '.js':
-                    return new JsResourceFile($tmp_resource->getFile());
+                    return new JsResourceFile($file);
                 case '.png':
-                    return new PngResourceFile($tmp_resource->getFile());
+                    return new PngResourceFile($file);
                 case '.jpg':
                 case '.jpeg':
-                    return new JpegResourceFile($tmp_resource->getFile());
+                    return new JpegResourceFile($file);
                 case '.gif':
-                    return new GifResourceFile($tmp_resource->getFile());
-                default:
-                    return $tmp_resource;
+                    return new GifResourceFile($file);
             }
-        } else {
-            return $tmp_resource;
         }
+        return new PlainResourceFile($file);
     }
 
     /**
@@ -174,6 +176,9 @@ class SourceRoad implements MemberIdentifier {
      * @throws FileWriteErrorException
      */
     public function releaseResource(AbstractResourceFile $resource) {
+        if (is_null($this->getReleaseDir())) {
+            throw new Exception("ERROR: RELEASE DIR IS NULL: " . $resource->getRealPath());
+        }
         if (!$this->getReleaseDir()->exists()) {
             $this->getReleaseDir()->mkdirs();
         }
@@ -252,8 +257,8 @@ class SourceRoad implements MemberIdentifier {
         return $resource->getRelativePath($this->getSourceDir());
     }
 
-    
     private $__member__id = null;
+
     /**
      * Get this member object id.
      * @return string This member object identifier.
@@ -266,6 +271,7 @@ class SourceRoad implements MemberIdentifier {
     }
 
     private $__parent__project = null;
+
     /**
      * Gets the parent of this annotation.
      * 
@@ -273,13 +279,17 @@ class SourceRoad implements MemberIdentifier {
      */
     public final function getParentProject() {
         if (\is_null($this->__parent__project)) {
-            $result = \Chigi\Chiji\Util\ProjectUtil::searchRelativeProject($this);
+            $result = ProjectUtil::searchRelativeProject($this);
             if (\count($result) < 1) {
-                throw new \Chigi\Chiji\Exception\ProjectMemberNotFoundException("SOURCE ROAD NOT FOUND");
+                throw new ProjectMemberNotFoundException("SOURCE ROAD NOT FOUND");
             }
             $this->__parent__project = $result[0];
         }
         return $this->__parent__project;
+    }
+
+    public function buildCache(AbstractResourceFile $resource) {
+        
     }
 
 }

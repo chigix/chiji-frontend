@@ -65,7 +65,7 @@ class AbstractResourceFile implements \Chigi\Chiji\Project\MemberIdentifier {
      * @return string the relative path
      */
     public function getRelativePath(File $base_dir) {
-        return FileSystem::getFileSystem()->makePathRelative($this->file->getParent(), $base_dir->getAbsolutePath()) . $this->file->getName();
+        return FileSystem::getFileSystem()->makePathRelative($this->file->getAbsoluteFile()->getParent(), $base_dir->getAbsolutePath()) . $this->file->getName();
     }
 
     /**
@@ -85,6 +85,7 @@ class AbstractResourceFile implements \Chigi\Chiji\Project\MemberIdentifier {
     }
 
     private $__member__id = null;
+
     /**
      * Get this member object id.
      * @return string This member object identifier.
@@ -97,7 +98,7 @@ class AbstractResourceFile implements \Chigi\Chiji\Project\MemberIdentifier {
     }
 
     private $__parent_project = null;
-    
+
     /**
      * Gets the parent project of this registered resource.
      * 
@@ -110,6 +111,25 @@ class AbstractResourceFile implements \Chigi\Chiji\Project\MemberIdentifier {
             throw new \Chigi\Chiji\Exception\ProjectMemberNotFoundException("MEMBER NOT FOUND");
         }
         return $result[0];
+    }
+
+    /**
+     * Returns the final cache resource built from this.
+     * 
+     * @return \Chigi\Chiji\File\AbstractResourceFile
+     */
+    public final function getFinalCache() {
+        $resource = $this;
+        while (true) {
+            $cache = $this->getParentProject()->getCacheManager()->getCacheBuilt($resource);
+            if (\is_null($cache) || $cache->getMemberId() === $resource->getMemberId()) {
+                return $resource;
+            }
+            if (\is_null($cache)) {
+                return $resource;
+            }
+            $resource = $cache;
+        }
     }
 
 }

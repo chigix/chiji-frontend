@@ -49,6 +49,12 @@ class Project {
     private $resources = array();
 
     /**
+     *
+     * @var \Chigi\Chiji\Util\CacheManager
+     */
+    private $caches;
+
+    /**
      * 
      * @param File $configFile
      * @throws ConfigFileNotFoundException
@@ -104,7 +110,19 @@ class Project {
             }
         }
         $this->projectName = $config->getProjectName();
+        $this->caches = new \Chigi\Chiji\Util\CacheManager($config->getCacheDir(), $this);
+        $this->caches->registerDirectory($this->rootDir);
+        $config->setCacheManager($this->caches);
         $this->roadMap = $config->getRoadMap();
+        if (!$this->roadMap instanceof RoadMap) {
+            throw new \Exception("[" . $config->getProjectName() . "] ERROR: The getRoadMap Configuration must return RoadMap instance.");
+        }
+        foreach ($this->roadMap as $road) {
+            /* @var $road SourceRoad */
+            if (strpos($road->getSourceDir()->getAbsolutePath(), $config->getCacheDir()->getAbsolutePath()) === FALSE) {
+                $this->caches->registerDirectory($road->getSourceDir());
+            };
+        }
     }
 
     /**
@@ -185,9 +203,6 @@ class Project {
     public function registerResource(AbstractResourceFile $resource) {
         if (!isset($this->resources[md5($resource->getRealPath())])) {
             $this->resources[md5($resource->getRealPath())] = $resource;
-            if ($resource instanceof \Chigi\Chiji\File\Annotation) {
-                $resource->analyzeAnnotations();
-            }
         }
     }
 
@@ -196,6 +211,7 @@ class Project {
      * if not registered.
      * 
      * @param File $file
+     * @return AbstractResourceFile The corresponding resource object.
      */
     public function getResourceByFile(File $file) {
         if (isset($this->resources[md5($file->getAbsolutePath())])) {
@@ -203,6 +219,23 @@ class Project {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Returns all the resource objects registered in this project currently.
+     * 
+     * @return array<AbstractResourceFile>
+     */
+    public function getRegisteredResources() {
+        return array_values($this->resources);
+    }
+
+    /**
+     * 
+     * @return \Chigi\Chiji\Util\CacheManager
+     */
+    public function getCacheManager() {
+        return $this->caches;
     }
 
 }
