@@ -96,7 +96,6 @@ class SourceRoad implements MemberIdentifier {
         if ($this->resourcePathMatch($file)) {
             if (is_null($this->getParentProject()->getResourceByFile($file)) && !is_null($resource = $this->resourceFactory($file))) {
                 $this->getParentProject()->registerResource($resource);
-                $this->buildCache($resource);
             }
             return TRUE;
         } else {

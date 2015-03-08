@@ -30,8 +30,6 @@ use Chigi\Component\IO\File;
 class BuildRoad extends SourceRoad {
 
     public function buildCache(AbstractResourceFile $resource) {
-        var_dump($resource->getMemberId());
-        var_dump($resource->getRealPath());
         $this->getParentProject()->getCacheManager()->registerDirectory($resource->getFile()->getAbsoluteFile()->getParentFile());
         $cache_dir = $this->getParentProject()->getCacheManager()->searchCacheDir($resource->getFile()->getAbsoluteFile()->getParentFile());
         if (is_null($cache_dir) || $cache_dir->isFile()) {
@@ -42,9 +40,7 @@ class BuildRoad extends SourceRoad {
         }
         $cache_file = new File($resource->getFile()->getName(), $cache_dir->getAbsolutePath());
         file_put_contents($cache_file->getAbsolutePath(), $resource->getFileContents());
-        if (!is_null($road = $this->getParentProject()->getMatchRoad($cache_file))) {
-            $this->getParentProject()->getCacheManager()->registerCache($resource, $this->getParentProject()->getResourceByFile($cache_file));
-        }
+        $this->getParentProject()->getCacheManager()->registerCache($resource, $cache_file);
     }
 
 }

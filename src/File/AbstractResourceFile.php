@@ -121,14 +121,14 @@ class AbstractResourceFile implements \Chigi\Chiji\Project\MemberIdentifier {
     public final function getFinalCache() {
         $resource = $this;
         while (true) {
-            $cache = $this->getParentProject()->getCacheManager()->getCacheBuilt($resource);
-            if (\is_null($cache) || $cache->getMemberId() === $resource->getMemberId()) {
+            $cache_file = $this->getParentProject()->getCacheManager()->getCacheBuilt($resource);
+            if (\is_null($cache_file) ||
+                    \is_null($this->getParentProject()->getResourceByFile($cache_file)) ||
+                    $this->getParentProject()->getResourceByFile($cache_file)->getMemberId() === $resource->getMemberId()
+            ) {
                 return $resource;
             }
-            if (\is_null($cache)) {
-                return $resource;
-            }
-            $resource = $cache;
+            $resource = $this->getParentProject()->getResourceByFile($cache_file);
         }
     }
 

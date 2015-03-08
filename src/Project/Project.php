@@ -126,7 +126,8 @@ class Project {
     }
 
     /**
-     * Returns the first match road for the target resource file.
+     * Returns the first match road for the target resource file 
+     * with auto registration for the matched resource file.
      * @param File $file
      * @return SourceRoad|null
      */

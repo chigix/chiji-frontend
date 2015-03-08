@@ -45,7 +45,7 @@ class CacheManager {
 
     /**
      *
-     * @var array{"resourceMemberId":AbstractResourceFile}
+     * @var array{"resourceMemberId":File} resourceMemberId:CacheFileObj
      */
     private $cacheMap;
 
@@ -78,21 +78,19 @@ class CacheManager {
     /**
      * 
      * @param AbstractResourceFile $resource
-     * @param AbstractResourceFile $cache
+     * @param File $cache
      * @return CacheManager
      */
-    public function registerCache(AbstractResourceFile $resource, AbstractResourceFile $cache) {
-        if ($resource instanceof AbstractResourceFile && $cache instanceof AbstractResourceFile) {
-            $this->cacheMap[$resource->getMemberId()] = $cache;
-        }
+    public function registerCache(AbstractResourceFile $resource, File $cache) {
+        $this->cacheMap[$resource->getMemberId()] = $cache;
         return $this;
     }
 
     /**
-     * Returns the registered cache resource built from the given $resource.
+     * Returns the registered cache file built from the given $resource.
      * 
      * @param AbstractResourceFile $resource
-     * @return AbstractResourceFile
+     * @return File
      */
     public function getCacheBuilt(AbstractResourceFile $resource) {
         if (isset($this->cacheMap[$resource->getMemberId()])) {
