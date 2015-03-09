@@ -20,6 +20,7 @@ namespace Chigi\Chiji\Project;
 
 use Chigi\Chiji\Exception\CacheBuildFileException;
 use Chigi\Chiji\File\AbstractResourceFile;
+use Chigi\Chiji\File\PlainResourceFile;
 use Chigi\Component\IO\File;
 
 /**
@@ -41,6 +42,10 @@ class BuildRoad extends SourceRoad {
         $cache_file = new File($resource->getFile()->getName(), $cache_dir->getAbsolutePath());
         file_put_contents($cache_file->getAbsolutePath(), $resource->getFileContents());
         $this->getParentProject()->getCacheManager()->registerCache($resource, $cache_file);
+    }
+    
+    protected function resourceFactory(File $file) {
+        return new PlainResourceFile($file);
     }
 
 }

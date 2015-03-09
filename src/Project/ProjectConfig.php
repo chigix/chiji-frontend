@@ -61,7 +61,7 @@ abstract class ProjectConfig {
      * 
      * @param File $root_dir
      */
-    public function setProjectRootDir(File $root_dir) {
+    public final function setProjectRootDir(File $root_dir) {
         $this->projectRootDir = $root_dir;
         return $this;
     }

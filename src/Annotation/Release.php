@@ -63,7 +63,7 @@ class Release extends FunctionAnnotation {
         if ($resource instanceof RequiresMapInterface) {
             foreach ($resource->getRequires() as $resource_required) {
                 /* @var $resource_required AbstractResourceFile */
-                if ($resource_required instanceof $type) {
+                if ($resource_required->getFinalCache() instanceof $type) {
                     if (is_null($road = $this->getParentProject()->getMatchRoad($resource_required->getFinalCache()->getFile()))) {
                         throw new InvalidConfigException(sprintf("No roadmap for the resource cache '%s'.", $resource_required->getFile()));
                     } else {

@@ -112,6 +112,8 @@ class SourceRoad implements MemberIdentifier {
         $source_dirpath = str_replace('#', '\#', $this->sourceDir->getAbsolutePath());
         $source_dirpath = str_replace('[', '\[', $source_dirpath);
         $source_dirpath = str_replace(']', '\]', $source_dirpath);
+        $source_dirpath = str_replace('(', '\(', $source_dirpath);
+        $source_dirpath = str_replace(')', '\)', $source_dirpath);
         return preg_match('#^' . $source_dirpath . '/' . $this->getRegex() . '#', $file->getAbsolutePath()) ? TRUE : FALSE;
     }
 
