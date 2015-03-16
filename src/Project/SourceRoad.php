@@ -183,66 +183,29 @@ class SourceRoad implements MemberIdentifier {
         if (!$this->getReleaseDir()->exists()) {
             $this->getReleaseDir()->mkdirs();
         }
-        $release_file = new File($this->makeReleaseRelativePath($resource), $this->getReleaseDir()->getAbsolutePath());
+        $release_file = $this->makeReleaseFile($resource);
         $release_dir = $release_file->getParentFile();
         if (!$release_dir->exists()) {
             if (!$release_dir->mkdirs()) {
                 throw new FileWriteErrorException("The directory '" . $release_dir->getAbsolutePath() . "' create fails.");
             }
         }
-        file_put_contents($release_file->getAbsolutePath(), $resource->getFileContents());
+        \file_put_contents($release_file->getAbsolutePath(), $resource->getFileContents());
     }
 
+    private $__release__file__map = array();
+
     /**
-     * Returns the url formatted string accessed to the release result.
+     * Generate the file object to release for the given resource.
+     * 
      * @param AbstractResourceFile $resource
-     * @param string $format_name The name of the target format
-     * @return string The result formatted string
-     * @throws UndefinedReleaseUrlFormatException
-     * @throws FileWriteErrorException
+     * @return string
      */
-    public function getReleaseFormatUrl(AbstractResourceFile $resource, $format_name) {
-        $format_map = $this->getReleaseFormatMap();
-        if (isset($format_map[$format_name])) {
-            $url = str_replace('[FILE]', $this->makeReleaseRelativePath($resource), $format_map[$format_name]);
-            switch ($this->getUrlStampType()) {
-                case UrlStampEnum::NONE:
-                    $url = str_replace('[STAMP]', '', $url);
-                    break;
-                case UrlStampEnum::TIME_STAMP:
-                    $url = str_replace('[STAMP]', time(), $url);
-                    break;
-                case UrlStampEnum::TIME_HUMAN:
-                    $url = str_replace('[STAMP]', date("YmdHis"), $url);
-                    break;
-                case UrlStampEnum::HASH:
-                default:
-                    $release_file = new File($this->makeReleaseRelativePath($resource), $this->getReleaseDir()->getAbsolutePath());
-                    $url = str_replace('[STAMP]', substr(md5_file($release_file->getAbsolutePath()), 0, 8), $url);
-                    break;
-            }
-            return $url;
-        } else {
-            throw new UndefinedReleaseUrlFormatException("The format_name '$format_name' not defined.");
+    public final function makeReleaseFile(AbstractResourceFile $resource) {
+        if (!isset($this->__release__file__map[$resource->getMemberId()])) {
+            $this->__release__file__map[$resource->getMemberId()] = new File($this->makeReleaseRelativePath($resource), $this->getReleaseDir()->getAbsolutePath());
         }
-    }
-
-    /**
-     * Get the release format map.
-     * @return array<typename==string>
-     */
-    protected function getReleaseFormatMap() {
-        return array(
-            "HTTP_URL" => "[FILE]?[STAMP]",
-        );
-    }
-
-    /**
-     * Returns the stamp type from the UrlStampEnum
-     * @return int
-     */
-    protected function getUrlStampType() {
-        return UrlStampEnum::NONE;
+        return $this->__release__file__map[$resource->getMemberId()];
     }
 
     /**

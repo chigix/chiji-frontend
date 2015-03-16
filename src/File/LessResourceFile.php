@@ -24,4 +24,14 @@ namespace Chigi\Chiji\File;
  * @author 郷
  */
 class LessResourceFile extends CssResourceFile {
+
+    private $stamp = null;
+
+    public function getStamp() {
+        if (is_null($this->stamp)) {
+            $this->stamp = date("YmdHis");
+        }
+        return $this->stamp;
+    }
+
 }

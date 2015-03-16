@@ -66,7 +66,7 @@ final class Annotation {
                 continue;
             }
             $this->say($annotation_line . '[' . $this->scope->getRealPath() . ']');
-            if (preg_match('#^@(\S+)\s(.+)$#', $annotation_line, $matches)) {
+            if (preg_match('#^@([a-zA-Z]+)\s(.+)$#', $annotation_line, $matches)) {
                 $command_name = $matches[1];
                 $params = $matches[2];
             } elseif (preg_match('#^@([0-9a-zA-Z\/\\\]+)\((.*)\)$#', $annotation_line, $matches)) {

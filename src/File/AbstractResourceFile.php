@@ -132,4 +132,13 @@ class AbstractResourceFile implements \Chigi\Chiji\Project\MemberIdentifier {
         }
     }
 
+    /**
+     * Get the stamp string for this resource.
+     * 
+     * @return string
+     */
+    public function getStamp() {
+        return substr(md5_file($this->getFinalCache()->getFile()->getAbsolutePath()), 0, 8);
+    }
+
 }

@@ -70,4 +70,8 @@ class LessRoad extends SourceRoad {
         return $relative_path;
     }
 
+    protected function getUrlStampType() {
+        return UrlStampEnum::TIME_HUMAN;
+    }
+
 }

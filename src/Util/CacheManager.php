@@ -118,21 +118,27 @@ class CacheManager {
      * @throws CacheLoopException
      */
     public function registerDirectory(File $origDir) {
-        if (strpos($origDir->getAbsolutePath(), $this->cacheDir->getAbsolutePath()) !== FALSE) {
-            throw new CacheLoopException;
-        }
         if (isset($this->autoDirPathMap[md5($origDir->getAbsolutePath())])) {
             return $this;
         }
-        $this->autoDirPathMap[md5($origDir->getAbsolutePath())] = array(
-            $origDir, new File(
-                    str_replace(
-                            array('|', ':', '*', '?', '"', '<', '>')
-                            , $this->autoReplaceSequence
-                            , $origDir->getAbsolutePath()
-                    ), $this->cacheDir->getAbsolutePath() . "/." . uniqid()
-            )
-        );
+        if (strpos($origDir->getAbsolutePath(), $this->cacheDir->getAbsolutePath()) !== FALSE) {
+            $this->autoDirPathMap[md5($origDir->getAbsolutePath())] = array(
+                $origDir, new File($origDir->getAbsolutePath())
+                    // prevent cache dir loop.
+            );
+        } else {
+            $this->autoDirPathMap[md5($origDir->getAbsolutePath())] = array(
+                $origDir, new File(
+                        str_replace(
+                                array('|', ':', '*', '?', '"', '<', '>')
+                                , $this->autoReplaceSequence
+                                , $origDir->getAbsolutePath()
+                        ), $this->cacheDir->getAbsolutePath() . "/." . uniqid()
+                        // The uniqid here is a trick to mock a file level path, 
+                        // then the file class could generate path as parent path.
+                )
+            );
+        }
         return $this;
     }
 

@@ -47,6 +47,12 @@ class Project {
      * @var {md5($resources_path):AbstractResourceFile}
      */
     private $resources = array();
+    
+    /**
+     *
+     * @var \Chigi\Chiji\Collection\ResourcesCollection
+     */
+    private $releases = null;
 
     /**
      *
@@ -70,6 +76,7 @@ class Project {
             throw new ConfigFileNotFoundException("The Config File Param given INVALID.");
         }
         $this->rootDir = new File(dirname($this->configFile->getAbsolutePath()));
+        $this->releases = new \Chigi\Chiji\Collection\ResourcesCollection();
         $project_config = require($this->configFile->getAbsolutePath());
         if ($project_config instanceof ProjectConfig) {
             $this->pushConfig($project_config);
@@ -131,7 +138,7 @@ class Project {
      * @param File $file
      * @return SourceRoad|null
      */
-    public function getMatchRoad($file) {
+    public function getMatchRoad(File $file) {
         foreach ($this->roadMap as $road) {
             /* @var $road SourceRoad */
             if ($road->resourceCheck($file)) {
@@ -238,5 +245,14 @@ class Project {
     public function getCacheManager() {
         return $this->caches;
     }
-
+    
+    /**
+     * Returns the resources to release as a collection.
+     * 
+     * @return \Chigi\Chiji\Collection\ResourcesCollection
+     */
+    public function getReleasesCollection() {
+        return $this->releases;
+    }
+    
 }
