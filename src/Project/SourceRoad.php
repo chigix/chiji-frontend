@@ -184,7 +184,7 @@ class SourceRoad implements MemberIdentifier {
             $this->getReleaseDir()->mkdirs();
         }
         $release_file = $this->makeReleaseFile($resource);
-        $release_dir = $release_file->getParentFile();
+        $release_dir = $release_file->getAbsoluteFile()->getParentFile();
         if (!$release_dir->exists()) {
             if (!$release_dir->mkdirs()) {
                 throw new FileWriteErrorException("The directory '" . $release_dir->getAbsolutePath() . "' create fails.");
@@ -199,7 +199,7 @@ class SourceRoad implements MemberIdentifier {
      * Generate the file object to release for the given resource.
      * 
      * @param AbstractResourceFile $resource
-     * @return string
+     * @return File
      */
     public final function makeReleaseFile(AbstractResourceFile $resource) {
         if (!isset($this->__release__file__map[$resource->getMemberId()])) {

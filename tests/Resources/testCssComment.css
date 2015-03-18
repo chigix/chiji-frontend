@@ -1,0 +1,18 @@
+/*
+This file is part of the chiji-frontend package.
+
+(c) Richard Lea <chigix@zoho.com>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+*/
+/* 
+    Created on : 2015-3-17, 19:58:04
+    Author     : Richard Lea <chigix@zoho.com>
+*/
+/*
+ * @require asdf.css
+ */
+body {
+    background: red;
+}

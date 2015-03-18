@@ -18,6 +18,9 @@
         "oyejorge/less.php": "~1.5",
         "chigix/io-component": "~0.1.1"
     },
+    "require-dev": {
+        "mikey179/vfsStream": "~1"
+    },
     "autoload": {
         "psr-4": { "Chigi\\Chiji\\": "src/" }
     }
