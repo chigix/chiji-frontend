@@ -18,7 +18,6 @@
 
 namespace Chigi\Chiji\File;
 
-use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Component\IO\File;
 use Chigi\Component\IO\FileSystem;
 
@@ -38,12 +37,12 @@ class AbstractResourceFile implements \Chigi\Chiji\Project\MemberIdentifier {
     /**
      * 
      * @param File $file
-     * @throws ResourceNotFoundException
+     * @throws \InvalidArgumentException
      */
     public function __construct(File $file) {
         $this->file = $file;
         if (!$this->file->isFile()) {
-            throw new ResourceNotFoundException("The Resource file '$file_path' NOT FOUND.");
+            throw new \InvalidArgumentException("The Resource file '$file_path' NOT FOUND.");
         }
     }
 

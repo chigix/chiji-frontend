@@ -29,8 +29,8 @@ class Release extends FunctionAnnotation {
     protected $path;
 
     public function execute() {
-        if (is_null($resource = $this->getParentProject()->getResourceByFile(new File($this->path, $this->getScope()->getFile()->getAbsoluteFile()->getParent())))) {
-            throw new ResourceNotFoundException("Error for non existing resource to release.");
+        if (is_null($resource = $this->getParentProject()->getResourceByFile($file_to_release = new File($this->path, $this->getScope()->getFile()->getAbsoluteFile()->getParent())))) {
+            throw new ResourceNotFoundException($file_to_release->getAbsolutePath(), $this->getScope(), $this->getOccursPos(), "Releasing Resource NOT EXISTS");
         }
         $this->getParentProject()->getReleasesCollection()->addResource($resource);
     }

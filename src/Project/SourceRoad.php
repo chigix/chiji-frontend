@@ -21,7 +21,7 @@ namespace Chigi\Chiji\Project;
 use Chigi\Chiji\Collection\ResourcesCollection;
 use Chigi\Chiji\Exception\FileWriteErrorException;
 use Chigi\Chiji\Exception\ProjectMemberNotFoundException;
-use Chigi\Chiji\Exception\UndefinedReleaseUrlFormatException;
+use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\CssResourceFile;
 use Chigi\Chiji\File\GifResourceFile;
@@ -32,8 +32,6 @@ use Chigi\Chiji\File\PlainResourceFile;
 use Chigi\Chiji\File\PngResourceFile;
 use Chigi\Chiji\Util\ProjectUtil;
 use Chigi\Component\IO\File;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
 /**
  * Config for a release road for ONE RESOURCE. 
@@ -70,7 +68,7 @@ class SourceRoad implements MemberIdentifier {
         $this->releaseDir = $release_dir;
         $name = trim($name);
         if (empty($name)) {
-            throw new InvalidArgumentException(sprintf("The Roadname '%s' IS INVALID", $name));
+            throw new \InvalidArgumentException(sprintf("The Roadname '%s' IS INVALID", $name));
         }
         $this->name = $name;
         $this->requires = new ResourcesCollection();
@@ -151,24 +149,29 @@ class SourceRoad implements MemberIdentifier {
      */
     protected function resourceFactory(File $file) {
         $matches = array();
-        if (preg_match('#\.[a-zA-Z0-9]+$#', $file->getAbsolutePath(), $matches)) {
-            switch (strtolower($matches[0])) {
-                case '.css':
-                    return new CssResourceFile($file);
-                case '.less':
-                    return new LessResourceFile($file);
-                case '.js':
-                    return new JsResourceFile($file);
-                case '.png':
-                    return new PngResourceFile($file);
-                case '.jpg':
-                case '.jpeg':
-                    return new JpegResourceFile($file);
-                case '.gif':
-                    return new GifResourceFile($file);
+        try {
+            if (preg_match('#\.[a-zA-Z0-9]+$#', $file->getAbsolutePath(), $matches)) {
+                switch (strtolower($matches[0])) {
+                    case '.css':
+                        return new CssResourceFile($file);
+                    case '.less':
+                        return new LessResourceFile($file);
+                    case '.js':
+                        return new JsResourceFile($file);
+                    case '.png':
+                        return new PngResourceFile($file);
+                    case '.jpg':
+                    case '.jpeg':
+                        return new JpegResourceFile($file);
+                    case '.gif':
+                        return new GifResourceFile($file);
+                }
             }
+            return new PlainResourceFile($file);
+        } catch (\InvalidArgumentException $exc) {
+            throw new ResourceNotFoundException($file->getAbsolutePath(), $this, null, $exc->getMessage());
         }
-        return new PlainResourceFile($file);
+
     }
 
     /**

@@ -18,10 +18,34 @@
 
 namespace Chigi\Chiji\Exception;
 
+use Chigi\Chiji\File\AbstractResourceFile;
+use Chigi\Chiji\Project\SourceRoad;
+
 /**
- * Description of ResourceNotFoundException
+ * Thrown when target AbstractResourceFile not found or not registered 
+ * from annother resource with annotation or SourceRoad registering resource.
  *
  * @author 郷
  */
 class ResourceNotFoundException extends \Exception {
+
+    /**
+     * 
+     * @param string $resource_name
+     * @param AbstractResourceFile|SourceRoad $searcher
+     * @param int $position
+     * @param string $reason
+     */
+    public function __construct($resource_name, $searcher, $position = null, $reason = null) {
+        if ($searcher instanceof AbstractResourceFile) {
+            $searcher_info = $searcher->getRealPath();
+        }  elseif ($searcher instanceof SourceRoad) {
+            $searcher_info = get_class($searcher);
+        }  else {
+            throw new \InvalidArgumentException("Invalid Type for searcher: " . get_class($searcher));
+        }
+        parent::__construct((is_string($reason) ? $reason : "Resource Not Found") . ": [$resource_name] from [$searcher"
+                . (is_int($position) ? $position : "") . "]");
+    }
+
 }

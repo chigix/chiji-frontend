@@ -18,7 +18,7 @@
 
 namespace Chigi\Chiji\Annotation;
 
-use Chigi\Chiji\Exception\ResourceNotFoundException;
+use Chigi\Chiji\Exception\InvalidConfigException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\Annotation as AnnotationInterface;
 use Chigi\Chiji\Util\StaticsManager;
@@ -55,7 +55,7 @@ final class Annotation {
         /* @var $scope_resource AbstractResourceFile */
         $scope_resource = $this->getScope();
         if (!$scope_resource instanceof AbstractResourceFile) {
-            throw new ResourceNotFoundException("INVALID scope resource file to parse.");
+            throw new InvalidConfigException("INVALID scope resource file to parse.");
         }
         $contents = str_replace("\r", "\n", $this->contents);
         $annotation_lines = explode("\n", $contents);
@@ -106,6 +106,10 @@ final class Annotation {
      */
     public function getScope() {
         return $this->scope;
+    }
+
+    function getContents() {
+        return $this->contents;
     }
 
 }

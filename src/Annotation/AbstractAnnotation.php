@@ -18,7 +18,6 @@
 
 namespace Chigi\Chiji\Annotation;
 
-use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\Project\Project;
 
@@ -48,13 +47,13 @@ abstract class AbstractAnnotation {
     /**
      * Get the scope of the resource file object
      * @return AbstractResourceFile
-     * @throws ResourceNotFoundException
+     * @throws \Chigi\Chiji\Exception\InvalidConfigException
      */
     protected function getScope() {
         if ($this->annotation->getScope() instanceof AbstractResourceFile) {
             return $this->annotation->getScope();
         } else {
-            throw new ResourceNotFoundException("Invalid Annotation interface resource.");
+            throw new \Chigi\Chiji\Exception\InvalidConfigException("Invalid Annotation interface resource.");
         }
     }
 
@@ -71,7 +70,7 @@ abstract class AbstractAnnotation {
      * 
      * @return Project The parent project of this annotation.
      * @throws \Chigi\Chiji\Exception\ProjectMemberNotFoundException
-     * @throws ResourceNotFoundException
+     * @throws \Chigi\Chiji\Exception\InvalidConfigException
      */
     public function getParentProject() {
         return $this->getScope()->getParentProject();

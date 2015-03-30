@@ -38,7 +38,7 @@ class RequireAnnotation extends AbstractAnnotation {
     public function parse($param_str) {
         $file = new File(trim($param_str), $this->getScope()->getFile()->getAbsoluteFile()->getParent());
         if (!$file->exists()) {
-            throw new ResourceNotFoundException("The file $param_str NOT FOUND FROM " . $file->getAbsolutePath());
+            throw new ResourceNotFoundException($param_str, $this->getScope(), $this->getOccursPos(), "The Requirement File Not Exists");
         }
         if (is_null($require_resource = $this->getParentProject()->getResourceByFile($file))) {
             throw new \Chigi\Chiji\Exception\ProjectMemberNotFoundException("ERROR: UNREGISTERED Resource File: " + $file->getAbsolutePath());

@@ -35,7 +35,7 @@ class AppendResourceAddress extends FunctionAnnotation {
     use \Robo\Output;
 
     /**
-     * The resources type to be released match
+     * The resources path
      * @var string 
      */
     protected $resource;
@@ -53,10 +53,25 @@ class AppendResourceAddress extends FunctionAnnotation {
     protected $template;
 
     public function execute() {
+        if (is_null($this->resource)) {
+            $exc_message = "Resource Path couldn't be detected.";
+        } elseif (is_null($this->output)) {
+            $exc_message = "Output Path occurs unhandled exception.";
+        } elseif (is_null($this->template)) {
+            $exc_message = "Template Path is incorrect.";
+        }
+        if (isset($exc_message) && is_string($exc_message)) {
+            foreach ($this->getScope()->getAnnotations() as $annotation) {
+                /* @var $annotation Annotation */
+                if ($this->getOccursPos() === $annotation->getOccursPos()) {
+                    throw new \Exception($exc_message . " : " . $annotation->getContents());
+                }
+            }
+        }
         $file_required = new File($this->resource, $this->getScope()->getFile()->getAbsoluteFile()->getParent());
         $resource_required = $this->getParentProject()->getResourceByFile($file_required);
         if (is_null($resource_required)) {
-            throw new ResourceNotFoundException("Append Resource NOT REGISTERED: " . $file_required->getAbsolutePath() . " FROM " . $this->getScope()->getRealPath());
+            throw new ResourceNotFoundException($file_required->getAbsolutePath(), $this->getScope()->getRealPath(), $this->getOccursPos(), "Appending Resource NOT REGISTERED");
         }
         $template = new FileInputStream(new File($this->template, $this->getScope()->getRealPath()));
         $append_file = new File($this->output, $this->getScope()->getRealPath());
