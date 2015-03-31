@@ -27,10 +27,10 @@ If you are using some fashion frameworks or want other bridge packages, you coul
 
 # Main Point
 
-In the Chiji Solution, the front-end project could be resolved as the three partition:
+In the Chiji Solution, the front-end project could be resolved, around the resources, as the three partition:
 
 1. Resource Positioning
-2. Requirement Annotation
+2. Resource Relation
 3. Resource Releasing
 
 Every assetic file (css, js, scripts, images) are treated as Resources located into one Project. Then the project would try to find target assetic files and registered as mapped resource object through SourceRoad, which with responsible for Assetic Pre-building and Releasing Flow.
@@ -38,3 +38,54 @@ Every assetic file (css, js, scripts, images) are treated as Resources located i
 Annotation is the main util for the requirement relationships between resources. More freely, Customer annotation could be implemented to cover more resource operation requisites and cases.
 
 For users, the design on resources operation flow and releasing schedule is the main task, maybe you can have a look at the Symfony Chiji-bundle bridge repository.
+
+# Basic API Usage
+
+This section gives you a brief introduction to the PHP API for Chiji the Base Package.
+
+```php
+<?php
+// /path/to/conf-file.php
+
+class ConfigFile extends \Chigi\Chiji\Project\ProjectConfig {
+
+}
+
+return new ConfigFile();
+?>
+```
+
+Initially then, the configuration file for the front-end project is needed to create with defining the source roads. Defaultly, the original `\Chigi\Chiji\Project\ProjectConfig` abstract class could be used as the start kit directly.
+
+```php
+require_once '/path/to/vendor/autoload.php'
+
+$project = new \Chigi\Chiji\Project\Project("/path/to/conf-file.php");
+\Chigi\Chiji\Util\ProjectUtil::registerProject($project);
+foreach ($project->getReleaseDirs() as $dir) {
+    // ... Clean and init release directories.
+}
+foreach ($project->getSourceDirs() as $dir) {
+    // ... scan the directory for register files as resource.
+    $project->getResourceByFile($file);
+    // ...
+}
+foreach ($project->getRegisteredResources() as $resource) {
+    if ($resource instanceof \Chigi\Chiji\File\Annotation) {
+        $resource->analyzeAnnotations();
+    }
+}
+foreach ($project->getReleasesCollection() as $resource) {
+    $project->getMatchRoad($resource->getFile())->releaseResource($resource);
+}
+```
+
+After registering the configured project, the operations for resources could be scheduled:
+
+1. Resources Positioning through defined Source Roads in project.
+2. Resources Relating through annotations embeded in resource codes.
+3. Resources Releasing through defined Source Roads in project.
+
+# More Information
+
+Read the [docs](./docs) for more information.
