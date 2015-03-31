@@ -149,21 +149,21 @@ class Project {
     }
 
     /**
-     * Returns all the source directory paths from roadmap.
-     * @return array<string>
+     * Returns all the source directory objects from roadmap.
+     * @return array<File>
      */
     public function getSourceDirs() {
         $dirs = array();
         foreach ($this->roadMap as $road) {
             /* @var $road SourceRoad */
-            array_push($dirs, $road->getSourceDir()->getAbsolutePath());
+            array_push($dirs, $road->getSourceDir());
         }
         return $dirs;
     }
 
     /**
-     * Returns all the release directory paths from roadmap.
-     * @return array<string>
+     * Returns all the release directory objects from roadmap.
+     * @return array<File>
      */
     public function getReleaseDirs() {
         $dirs = array();
@@ -178,7 +178,7 @@ class Project {
                     continue;
                 }
             }
-            array_push($dirs, $release_dir->getAbsolutePath());
+            array_push($dirs, $release_dir);
         }
         return $dirs;
     }
