@@ -18,6 +18,7 @@
 
 namespace Chigi\Chiji\Project;
 
+use Chigi\Chiji\Collection\ExtensionCollection;
 use Chigi\Chiji\Collection\RoadMap;
 use Chigi\Chiji\Util\CacheManager;
 use Chigi\Component\IO\File;
@@ -120,6 +121,10 @@ abstract class ProjectConfig {
 
     public final function setCacheManager(CacheManager $cache) {
         $this->__mock_cache_manager = $cache;
+    }
+
+    public function registerExtension(ExtensionCollection $extensions) {
+        
     }
 
 }

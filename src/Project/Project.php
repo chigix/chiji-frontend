@@ -18,6 +18,7 @@
 
 namespace Chigi\Chiji\Project;
 
+use Chigi\Chiji\Collection\ExtensionCollection;
 use Chigi\Chiji\Collection\RoadMap;
 use Chigi\Chiji\Exception\ConfigFileNotFoundException;
 use Chigi\Chiji\Exception\InvalidConfigException;
@@ -25,7 +26,7 @@ use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Component\IO\File;
 
 /**
- * Description of Project
+ * The Chiji Project Descriptor object.
  *
  * @author 郷
  */
@@ -129,6 +130,13 @@ class Project {
             if (strpos($road->getSourceDir()->getAbsolutePath(), $config->getCacheDir()->getAbsolutePath()) === FALSE) {
                 $this->caches->registerDirectory($road->getSourceDir());
             };
+        }
+        $extensions = new ExtensionCollection();
+        $config->registerExtension($extensions);
+        foreach ($extensions as $extension) {
+            /* @var $extension AbstractExtension */
+            $extension->onRegister($this);
+            $extension->onConfigure($config);
         }
     }
 
