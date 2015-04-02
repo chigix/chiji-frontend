@@ -48,7 +48,9 @@ This section gives you a brief introduction to the PHP API for Chiji the Base Pa
 // /path/to/conf-file.php
 
 class ConfigFile extends \Chigi\Chiji\Project\ProjectConfig {
-
+    public function getProjectName() {
+        return "AppName";
+    }
 }
 
 return new ConfigFile();
