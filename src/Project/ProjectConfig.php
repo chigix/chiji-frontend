@@ -123,8 +123,4 @@ abstract class ProjectConfig {
         $this->__mock_cache_manager = $cache;
     }
 
-    public function registerExtension(ExtensionCollection $extensions) {
-        
-    }
-
 }

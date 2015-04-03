@@ -132,7 +132,9 @@ class Project {
             };
         }
         $extensions = new ExtensionCollection();
-        $config->registerExtension($extensions);
+        if ($config instanceof ProjectExtensionInterface) {
+            $config->registerExtension($extensions);
+        }
         foreach ($extensions as $extension) {
             /* @var $extension AbstractExtension */
             $extension->onRegister($this);
