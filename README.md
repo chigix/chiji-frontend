@@ -3,7 +3,7 @@ Chiji Front-end The Base Package
 
 * [Composer](https://packagist.org/packages/chigix/chiji)
 
-Chiji is a PHP Component for providing the best Front-end Intergration Solution.
+Chiji is a PHP Component for providing the best Front-end Integrated Solution.
 
 # Getting Started
 

@@ -55,3 +55,11 @@ Before using bower, please make sure the node and npm installed in your local sy
 Developers should just put a `bower.json` file in the project for saving and using packages happily. Optionally, the `.bowerrc` file could be set to specify another directory name for packages installing such as `vendor`.
 
 All the files from bower could be registered as resources into chiji-frontend and be required into the project.
+
+# Resource Processing
+
+In Chiji Frontend Workflow, there is two type of processing for resources: Resource Building and Resource Releasing.
+
+Although building and releasing are the same level processing at target resource file, the cache from building has more internal relation embeded. So we suggest developer to check newly created files looply during cache building, on the contrary, to put final touch directly to desitination.
+
+For more information for the two processing, please move to the [RoadMap](./roadmap.md) documents checking corresponding sections.
