@@ -19,6 +19,7 @@
 namespace Chigi\Chiji\Collection;
 
 use ArrayIterator;
+use Chigi\Chiji\Exception\UnknownRoadException;
 use Chigi\Chiji\Project\SourceRoad;
 
 /**
@@ -33,17 +34,31 @@ class RoadMap extends ArrayIterator {
 
     /**
      * Associates the specified resource road with the road name in this map.
-     * @param \Chigi\Chiji\Project\SourceRoad $road
+     * @param SourceRoad $road
      */
     private function put(SourceRoad $road) {
         $this->offsetSet($road->getName(), $road);
     }
 
     /**
+     * Get the target SourceRoad via given $roadName.
+     * 
+     * @param string $roadName
+     * @return SourceRoad
+     * @throws UnknownRoadException
+     */
+    public function get($roadName) {
+        if (!in_array($roadName, $this->priorityQueue)) {
+            throw new UnknownRoadException($roadName, $this);
+        }
+        return $this->offsetGet($roadName);
+    }
+
+    /**
      * Append a given resource road into this map.
      * 
      * @param SourceRoad $road
-     * @return \Chigi\Chiji\Collection\RoadMap
+     * @return RoadMap
      */
     public function append($road) {
         if (!in_array($road->getName(), $this->priorityQueue)) {
@@ -70,7 +85,7 @@ class RoadMap extends ArrayIterator {
     }
 
     public function __construct($array = array(), $flags = 0) {
-        parent::__construct($array, 0);
+        parent::__construct($array, $flags);
         $this->position = 0;
     }
 
