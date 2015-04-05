@@ -71,7 +71,7 @@ class AppendResourceAddress extends FunctionAnnotation {
         $file_required = new File($this->resource, $this->getScope()->getFile()->getAbsoluteFile()->getParent());
         $resource_required = $this->getParentProject()->getResourceByFile($file_required);
         if (is_null($resource_required)) {
-            throw new ResourceNotFoundException($file_required->getAbsolutePath(), $this->getScope()->getRealPath(), $this->getOccursPos(), "Appending Resource NOT REGISTERED");
+            throw new ResourceNotFoundException($file_required->getAbsolutePath(), $this->getScope(), $this->getOccursPos(), "Appending Resource NOT REGISTERED");
         }
         $template = new FileInputStream(new File($this->template, $this->getScope()->getRealPath()));
         $append_file = new File($this->output, $this->getScope()->getRealPath());
