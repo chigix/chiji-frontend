@@ -39,13 +39,17 @@ class ResourceNotFoundException extends \Exception {
     public function __construct($resource_name, $searcher, $position = null, $reason = null) {
         if ($searcher instanceof AbstractResourceFile) {
             $searcher_info = $searcher->getRealPath();
+            if (is_int($position)) {
+                $explode = \preg_split('/$\R?^/m', \substr($searcher->getFileContents(), 0, $position));
+                $position = count($explode);
+            }
         }  elseif ($searcher instanceof SourceRoad) {
             $searcher_info = get_class($searcher);
         }  else {
             throw new \InvalidArgumentException("Invalid Type for searcher: " . get_class($searcher));
         }
         parent::__construct((is_string($reason) ? $reason : "Resource Not Found") . ": [$resource_name] from [$searcher_info"
-                . (is_int($position) ? $position : "") . "]");
+                . (is_int($position) ? (":" . $position) : "") . "]");
     }
 
 }
