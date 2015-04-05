@@ -68,6 +68,11 @@ class RoadMap extends ArrayIterator {
         return $this;
     }
 
+    /**
+     * Prepend a SourceRoad to this roadMap.
+     * 
+     * @param SourceRoad $road
+     */
     public function prepend(SourceRoad $road) {
         if (!in_array($road->getName(), $this->priorityQueue)) {
             $this->put($road);
