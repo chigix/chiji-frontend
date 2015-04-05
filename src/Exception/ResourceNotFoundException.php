@@ -44,7 +44,7 @@ class ResourceNotFoundException extends \Exception {
         }  else {
             throw new \InvalidArgumentException("Invalid Type for searcher: " . get_class($searcher));
         }
-        parent::__construct((is_string($reason) ? $reason : "Resource Not Found") . ": [$resource_name] from [$searcher"
+        parent::__construct((is_string($reason) ? $reason : "Resource Not Found") . ": [$resource_name] from [$searcher_info"
                 . (is_int($position) ? $position : "") . "]");
     }
 
