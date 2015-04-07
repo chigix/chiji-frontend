@@ -11,6 +11,8 @@
 
 namespace Chigi\Chiji\Project;
 
+use Chigi\Chiji\Exception\InvalidConfigException;
+
 /**
  * Chiji Front-end Intergration Solution Abstract Extension.
  *
@@ -22,6 +24,7 @@ abstract class AbstractExtension {
      * Called When registering Project object.
      * 
      * @param Project $project
+     * @throws InvalidConfigException
      */
     public function onRegister(Project $project) {
         
