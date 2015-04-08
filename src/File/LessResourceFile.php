@@ -41,7 +41,6 @@ class LessResourceFile extends CssResourceFile {
         }
         $file_occurs_offset = 0;
         foreach ($matches[1] as $comment_str) {
-            var_dump($comment_str);
             $occurs_pos = strpos($this->getFileContents(), $comment_str, $file_occurs_offset);
             $file_occurs_offset = $occurs_pos + strlen($comment_str);
             $this->getAnnotations()->addAnnotation(new \Chigi\Chiji\Annotation\Annotation($comment_str, $this, $occurs_pos));
