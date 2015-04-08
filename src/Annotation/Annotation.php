@@ -80,6 +80,10 @@ final class Annotation {
                 $command_annotation = new RequireAnnotation($this);
             } elseif ('use' === strtolower($command_name)) {
                 $command_annotation = new UseAnnotation($this);
+            } elseif ('pathfix' === strtolower($command_name)) {
+                $command_annotation = new PathFixAnnotation($this);
+            } elseif ('pathfixall' === strtolower($command_name)) {
+                $command_annotation = new PathFixAllAnnotation($this);
             } elseif (class_exists($command_name)) {
                 $command_annotation = new $command_name($this);
             } else {

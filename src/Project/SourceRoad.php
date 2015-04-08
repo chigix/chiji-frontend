@@ -30,6 +30,7 @@ use Chigi\Chiji\File\JsResourceFile;
 use Chigi\Chiji\File\LessResourceFile;
 use Chigi\Chiji\File\PlainResourceFile;
 use Chigi\Chiji\File\PngResourceFile;
+use Chigi\Chiji\Util\PathFixManager;
 use Chigi\Chiji\Util\ProjectUtil;
 use Chigi\Component\IO\File;
 
@@ -171,7 +172,6 @@ class SourceRoad implements MemberIdentifier {
         } catch (\InvalidArgumentException $exc) {
             throw new ResourceNotFoundException($file->getAbsolutePath(), $this, null, $exc->getMessage());
         }
-
     }
 
     /**
@@ -181,7 +181,7 @@ class SourceRoad implements MemberIdentifier {
      */
     public function releaseResource(AbstractResourceFile $resource) {
         if (is_null($this->getReleaseDir())) {
-            throw new Exception("ERROR: RELEASE DIR IS NULL: " . $resource->getRealPath());
+            throw new \Exception("ERROR: RELEASE DIR IS NULL: " . $resource->getRealPath());
         }
         if (!$this->getReleaseDir()->exists()) {
             $this->getReleaseDir()->mkdirs();
@@ -193,7 +193,7 @@ class SourceRoad implements MemberIdentifier {
                 throw new FileWriteErrorException("The directory '" . $release_dir->getAbsolutePath() . "' create fails.");
             }
         }
-        \file_put_contents($release_file->getAbsolutePath(), $resource->getFileContents());
+        \file_put_contents($release_file->getAbsolutePath(), PathFixManager::fixReleasePath($resource->getFileContents(), $resource));
     }
 
     private $__release__file__map = array();

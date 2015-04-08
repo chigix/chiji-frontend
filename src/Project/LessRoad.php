@@ -19,9 +19,12 @@
 namespace Chigi\Chiji\Project;
 
 use Chigi\Chiji\Exception\FileWriteErrorException;
+use Chigi\Chiji\Exception\InvalidConfigException;
 use Chigi\Chiji\File\AbstractResourceFile;
-use Less_Parser;
+use Chigi\Chiji\File\LessResourceFile;
+use Chigi\Chiji\Util\PathFixManager;
 use Chigi\Component\IO\File;
+use Less_Parser;
 
 /**
  * Description of LessRoad
@@ -35,6 +38,9 @@ class LessRoad extends SourceRoad {
     }
 
     public function releaseResource(AbstractResourceFile $resource) {
+        if (!$resource instanceof LessResourceFile) {
+            throw new InvalidConfigException("LessRoad Match Error: " . $resource->getRealPath());
+        }
         $parser = new Less_Parser();
         $parser->parseFile($resource->getFile()->getAbsolutePath());
         if (!$this->getReleaseDir()->exists()) {
@@ -47,7 +53,7 @@ class LessRoad extends SourceRoad {
                 throw new FileWriteErrorException("The directory '" . $release_dir->getAbsolutePath() . "' create fails.");
             }
         }
-        file_put_contents($release_file->getAbsolutePath(), $parser->getCss());
+        file_put_contents($release_file->getAbsolutePath(), PathFixManager::fixReleasePath($parser->getCss(), $resource));
         //var_dump($parser->AllParsedFiles());
     }
 
