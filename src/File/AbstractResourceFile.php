@@ -72,7 +72,7 @@ class AbstractResourceFile implements \Chigi\Chiji\Project\MemberIdentifier {
      * @return string
      */
     public final function getFileContents() {
-        return file_get_contents($this->file->getAbsolutePath());
+        return \file_get_contents($this->file->getAbsolutePath());
     }
 
     /**
