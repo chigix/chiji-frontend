@@ -75,5 +75,9 @@ abstract class AbstractAnnotation {
     public function getParentProject() {
         return $this->getScope()->getParentProject();
     }
+    
+    public function getRawContent() {
+        return $this->annotation->getContents();
+    }
 
 }

@@ -36,7 +36,7 @@ class LessResourceFile extends CssResourceFile {
 
     private function findComments() {
         $matches = array();
-        if (!preg_match_all('#[ ]*[/]{2,}[[:blank:]]+(@.*)#', $this->getFileContents(), $matches) > 0) {
+        if (!preg_match_all('#[ ]*[/]{2,}[[:blank:]]*(@.*)#', $this->getFileContents(), $matches) > 0) {
             return;
         }
         $file_occurs_offset = 0;
