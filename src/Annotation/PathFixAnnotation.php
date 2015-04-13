@@ -40,7 +40,7 @@ class PathFixAnnotation extends AbstractAnnotation {
 
     public function parse($param_str) {
         $matches = array();
-        if (preg_match('/^([a-zA-Z\.\-_\/]+) with (.+)$/', trim($param_str), $matches)) {
+        if (preg_match('/^([a-zA-Z\.\-_\/0-9]+) with (.+)$/', trim($param_str), $matches)) {
             $this->replaceString = trim($matches[1]);
             $file = new File(trim($matches[2]), $this->getScope()->getFile()->getAbsoluteFile()->getParent());
             $this->referenceResource = $this->getParentProject()->getResourceByFile($file);
