@@ -60,7 +60,7 @@ class CssResourceFile extends AbstractResourceFile implements Annotation {
             $lines = explode("\n", $comment_str);
             foreach ($lines as $line_str) {
                 $to_parse = array();
-                if (preg_match('#^(\/\*|[\* -_])+(@.+)(\*\/|[\* -_])+$#', " " . trim($line_str) . " ", $to_parse)) {
+                if (preg_match('#^\s*(\/\*|[\* \-_])+(@.+)(\*\/|[\*\-_])+\s*$#', " " . trim($line_str) . " ", $to_parse)) {
                     $annotation_str = $to_parse[2];
                     $occurs_pos = strpos($this->getFileContents(), $annotation_str, $file_occurs_offset);
                     $file_occurs_offset = $occurs_pos + strlen($annotation_str);
