@@ -153,6 +153,8 @@ class SourceRoad implements MemberIdentifier {
         try {
             if (preg_match('#\.[a-zA-Z0-9]+$#', $file->getAbsolutePath(), $matches)) {
                 switch (strtolower($matches[0])) {
+                    case '.html':
+                        return new HtmlResourceFile($file);
                     case '.css':
                         return new CssResourceFile($file);
                     case '.less':
