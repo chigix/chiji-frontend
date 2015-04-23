@@ -32,7 +32,7 @@ use Chigi\Component\IO\FileSystem;
  */
 class AppendResourceAddress extends FunctionAnnotation {
 
-    use \Robo\Output;
+    use \Robo\Common\IO;
 
     /**
      * The resources path
