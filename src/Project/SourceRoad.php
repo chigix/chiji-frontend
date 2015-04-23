@@ -23,6 +23,7 @@ use Chigi\Chiji\Exception\FileWriteErrorException;
 use Chigi\Chiji\Exception\ProjectMemberNotFoundException;
 use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\File\AbstractResourceFile;
+use Chigi\Chiji\File\HtmlResourceFile;
 use Chigi\Chiji\File\CssResourceFile;
 use Chigi\Chiji\File\GifResourceFile;
 use Chigi\Chiji\File\JpegResourceFile;
