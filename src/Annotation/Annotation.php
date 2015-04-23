@@ -30,7 +30,7 @@ use Chigi\Chiji\Util\StaticsManager;
  */
 final class Annotation {
 
-    use \Robo\Output;
+    use \Robo\Common\IO;
 
     private $contents;
     private $scope;
